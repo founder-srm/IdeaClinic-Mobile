@@ -3,7 +3,6 @@
     "name": "ideaclinic-mobile",
     "slug": "ideaclinic-mobile",
     "version": "1.0.0",
-
     "scheme": "ideaclinic-mobile",
     "web": {
       "bundler": "metro",
@@ -19,17 +18,14 @@
         }
       ]
     ],
+    "newArchEnabled": true,
     "experiments": {
       "typedRoutes": true,
-
       "tsconfigPaths": true
     },
-
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-
     "userInterfaceStyle": "light",
-
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -44,6 +40,15 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "16ab635a-a2ac-4403-bff7-ef492ee1ed85"
+      }
+    },
+    "owner": "founders-club"
   }
 }

@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "denoland.vscode-deno",
+    "pandy.bun",
+    "oven.bun-vscode",
+    "doppler.doppler-vscode",
+    "dsznajder.es7-react-js-snippets",
+    "expo.vscode-expo-tools",
+    "msjsdiag.vscode-react-native",
+    "bradlc.vscode-tailwindcss"
+  ]
+}
