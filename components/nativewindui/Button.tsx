@@ -90,7 +90,7 @@ const ANDROID_RIPPLE = {
     tonal: { color: convertToRGBA(COLORS.dark.grey5, 0.8), borderless: false },
   },
   light: {
-    primary: { color: convertToRGBA(COLORS.light.grey4, 0.4), borderless: false },
+    primary: { color: convertToRGBA(COLORS.light.primary, 0.4), borderless: false },
     secondary: { color: convertToRGBA(COLORS.light.grey5, 0.4), borderless: false },
     plain: { color: convertToRGBA(COLORS.light.grey5, 0.4), borderless: false },
     tonal: { color: convertToRGBA(COLORS.light.grey6, 0.4), borderless: false },

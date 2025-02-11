@@ -1,4 +1,5 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import { BottomSheetDraggableView } from '@gorhom/bottom-sheet';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { Icon } from '@roninoss/icons';
 import { FlashList } from '@shopify/flash-list';
@@ -6,15 +7,16 @@ import { Link } from 'expo-router';
 import * as StoreReview from 'expo-store-review';
 import { cssInterop } from 'nativewind';
 import * as React from 'react';
-import { Linking, useWindowDimensions, View } from 'react-native';
+import { Linking, ScrollView, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '~/components/Button';
 import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
+import { Button } from '~/components/nativewindui/Button';
 import { DatePicker } from '~/components/nativewindui/DatePicker/DatePicker';
 import { Picker, PickerItem } from '~/components/nativewindui/Picker';
 import { ProgressIndicator } from '~/components/nativewindui/ProgressIndicator';
+import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { Slider } from '~/components/nativewindui/Slider';
 import { Text } from '~/components/nativewindui/Text';
 import { Toggle } from '~/components/nativewindui/Toggle';
@@ -25,19 +27,63 @@ cssInterop(FlashList, {
   contentContainerClassName: 'contentContainerStyle',
 });
 
-export default function Screen() {
+export default function DetailsScreen() {
+  const bottomSheetModalRef = useSheetRef();
+
+  const handlePresentModalPress = React.useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
+  const handleSheetChanges = React.useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
   return (
-    <FlashList
-      contentInsetAdjustmentBehavior="automatic"
-      keyboardShouldPersistTaps="handled"
-      data={COMPONENTS}
-      estimatedItemSize={200}
-      contentContainerClassName="py-4"
-      keyExtractor={keyExtractor}
-      ItemSeparatorComponent={renderItemSeparator}
-      renderItem={renderItem}
-      ListEmptyComponent={COMPONENTS.length === 0 ? ListEmptyComponent : undefined}
-    />
+    <ScrollView contentInsetAdjustmentBehavior="automatic" className="py-4">
+      <Text variant="title1" className="pb-4">
+        Components
+      </Text>
+      <FlashList
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardShouldPersistTaps="handled"
+        data={COMPONENTS}
+        estimatedItemSize={200}
+        contentContainerClassName="py-4"
+        keyExtractor={keyExtractor}
+        ItemSeparatorComponent={renderItemSeparator}
+        renderItem={renderItem}
+        ListEmptyComponent={COMPONENTS.length === 0 ? ListEmptyComponent : undefined}
+      />
+      <View className="py-8">
+        <Button onPress={handlePresentModalPress}>
+          <Text>Open Sheet</Text>
+        </Button>
+
+        <Sheet ref={bottomSheetModalRef} onChange={handleSheetChanges} snapPoints={[300]}>
+          <BottomSheetDraggableView>
+            <View className="gap-4 p-4">
+              <Text variant="title3" className="text-center font-semibold">
+                Bottom Sheet Content
+              </Text>
+              <Button onPress={() => console.log('Button pressed')}>
+                <Text>Click Me!</Text>
+              </Button>
+              <View className="flex-row items-center justify-between">
+                <Text>Enable Feature</Text>
+                <Toggle value onValueChange={() => {}} />
+              </View>
+              <ProgressIndicator value={75} max={100} />
+              <View className="flex-row items-center gap-2">
+                <Avatar alt="User">
+                  <AvatarFallback>
+                    <Text>UI</Text>
+                  </AvatarFallback>
+                </Avatar>
+                <Text>John Doe</Text>
+              </View>
+            </View>
+          </BottomSheetDraggableView>
+        </Sheet>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -55,7 +101,9 @@ function ListEmptyComponent() {
         No Components Installed
       </Text>
       <Link href={{ pathname: '/details', params: { name: 'Dan' } }} asChild>
-        <Button title="Show Details" />
+        <Button size="lg" variant="primary">
+          <Text>Get Started</Text>
+        </Button>
       </Link>
       <Text color="tertiary" variant="subhead" className="pb-4 text-center">
         You can install any of the free components from the{' '}
@@ -115,7 +163,9 @@ function ActionSheetExample() {
 
   return (
     <View>
-      <Button title="Show Action Sheet" onPress={handlePress} />
+      <Button onPress={handlePress}>
+        <Text>Show Action Sheet</Text>
+      </Button>
       {selectedIndex !== undefined && <Text>Selected Index: {selectedIndex}</Text>}
     </View>
   );
@@ -137,7 +187,11 @@ function AvatarExample() {
 }
 
 function ButtonExample() {
-  return <Button title="Press Me" onPress={() => console.log('Button Pressed')} />;
+  return (
+    <Button onPress={() => console.log('Button Pressed')}>
+      <Text>Press Me</Text>
+    </Button>
+  );
 }
 
 function DatePickerExample() {
@@ -146,7 +200,11 @@ function DatePickerExample() {
 
   return (
     <View>
-      {!showPicker && <Button title="Show Date Picker" onPress={() => setShowPicker(true)} />}
+      {!showPicker && (
+        <Button onPress={() => setShowPicker(true)}>
+          <Text>Open Picker</Text>
+        </Button>
+      )}
       {showPicker && (
         <DatePicker
           value={date}
@@ -176,6 +234,11 @@ function ProgressExample() {
   return (
     <View>
       <ProgressIndicator value={progress} max={100} />
+      <Slider
+        value={progress / 100}
+        onValueChange={(value) => setProgress(Math.round(value * 100))}
+        step={0.1}
+      />
     </View>
   );
 }
@@ -198,7 +261,9 @@ function RatingsExample() {
 
   return (
     <View>
-      <Button title="Request Review" onPress={handlePress} />
+      <Button onPress={handlePress}>
+        <Text>Request Review</Text>
+      </Button>
       <Text>{message}</Text>
     </View>
   );

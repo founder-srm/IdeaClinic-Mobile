@@ -46,6 +46,7 @@ function Text({
   const textClassName = React.useContext(TextClassContext);
   return (
     <UITextView
+      style={{ fontFamily: 'Onest-Thin' }}
       className={cn(textVariants({ variant, color }), textClassName, className)}
       {...props}
     />

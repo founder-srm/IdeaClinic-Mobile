@@ -1,3 +1,104 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 255 247 230;
+    --foreground: 2 8 23;
+    --card: 248 236 205;
+    --card-foreground: 2 8 23;
+    --popover: 255 255 255;
+    --popover-foreground: 2 8 23;
+    --primary: 100 83 49;
+    --primary-foreground: 248 250 252;
+    --secondary: 241 245 249;
+    --secondary-foreground: 15 23 42;
+    --muted: 241 245 249;
+    --muted-foreground: 100 116 139;
+    --accent: 222 213 182;
+    --accent-foreground: 15 23 42;
+    --destructive: 239 68 68;
+    --destructive-foreground: 248 250 252;
+    --border: 226 232 240;
+    --input: 226 232 240;
+    --ring: 2 8 23;
+    --chart-1: 231 110 80;
+    --chart-2: 42 157 144;
+    --chart-3: 39 71 84;
+    --chart-4: 232 196 104;
+    --chart-5: 244 164 98;
+
+    /* Android colors */
+    --android-background: 255 247 230;
+    --android-foreground: 2 8 23;
+    --android-card: 248 236 205;
+    --android-card-foreground: 2 8 23;
+    --android-popover: 255 255 255;
+    --android-popover-foreground: 2 8 23;
+    --android-primary: 100 83 49;
+    --android-primary-foreground: 248 250 252;
+    --android-secondary: 241 245 249;
+    --android-secondary-foreground: 15 23 42;
+    --android-muted: 241 245 249;
+    --android-muted-foreground: 100 116 139;
+    --android-accent: 222 213 182;
+    --android-accent-foreground: 15 23 42;
+    --android-destructive: 239 68 68;
+    --android-destructive-foreground: 248 250 252;
+    --android-border: 226 232 240;
+    --android-input: 226 232 240;
+    --android-ring: 2 8 23;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      /* Keep the same values for dark mode */
+      --background: 255 247 230;
+      --foreground: 2 8 23;
+      --card: 248 236 205;
+      --card-foreground: 2 8 23;
+      --popover: 255 255 255;
+      --popover-foreground: 2 8 23;
+      --primary: 100 83 49;
+      --primary-foreground: 248 250 252;
+      --secondary: 241 245 249;
+      --secondary-foreground: 15 23 42;
+      --muted: 241 245 249;
+      --muted-foreground: 100 116 139;
+      --accent: 222 213 182;
+      --accent-foreground: 15 23 42;
+      --destructive: 239 68 68;
+      --destructive-foreground: 248 250 252;
+      --border: 226 232 240;
+      --input: 226 232 240;
+      --ring: 2 8 23;
+      --chart-1: 231 110 80;
+      --chart-2: 42 157 144;
+      --chart-3: 39 71 84;
+      --chart-4: 232 196 104;
+      --chart-5: 244 164 98;
+
+      /* Android dark mode - same values as light */
+      --android-background: 255 247 230;
+      --android-foreground: 2 8 23;
+      --android-card: 248 236 205;
+      --android-card-foreground: 2 8 23;
+      --android-popover: 255 255 255;
+      --android-popover-foreground: 2 8 23;
+      --android-primary: 100 83 49;
+      --android-primary-foreground: 248 250 252;
+      --android-secondary: 241 245 249;
+      --android-secondary-foreground: 15 23 42;
+      --android-muted: 241 245 249;
+      --android-muted-foreground: 100 116 139;
+      --android-accent: 222 213 182;
+      --android-accent-foreground: 15 23 42;
+      --android-destructive: 239 68 68;
+      --android-destructive-foreground: 248 250 252;
+      --android-border: 226 232 240;
+      --android-input: 226 232 240;
+      --android-ring: 2 8 23;
+    }
+  }
+}

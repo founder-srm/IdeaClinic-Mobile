@@ -16,6 +16,21 @@
         {
           "launchMode": "most-recent"
         }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Onest-Black.ttf",
+            "./assets/fonts/Onest-Bold.ttf",
+            "./assets/fonts/Onest-ExtraBold.ttf",
+            "./assets/fonts/Onest-ExtraLight.ttf",
+            "./assets/fonts/Onest-Medium.ttf",
+            "./assets/fonts/Onest-Regular.ttf",
+            "./assets/fonts/Onest-SemiBold.ttf",
+            "./assets/fonts/Onest-Thin.ttf"
+          ]
+        }
       ]
     ],
     "newArchEnabled": true,
