@@ -237,7 +237,6 @@ function ProgressExample() {
       <Slider
         value={progress / 100}
         onValueChange={(value) => setProgress(Math.round(value * 100))}
-        step={0.1}
       />
     </View>
   );
