@@ -5,11 +5,12 @@ import 'tailwindcss/utilities';
 import 'expo-dev-client';
 
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import * as NavigationBar from 'expo-navigation-bar';
-import { Stack } from 'expo-router';
+import { Link, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
@@ -67,7 +68,24 @@ export default function Layout() {
                   headerRight: () => <ThemeToggle />,
                 }}>
                 <Stack.Screen name="index" options={{ headerShown: false }} />
-                <Stack.Screen name="details" options={{ headerRight: () => <ThemeToggle /> }} />
+                <Stack.Screen
+                  name="terms-and-conditions"
+                  options={{ presentation: 'modal', headerShown: true }}
+                />
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(forum)" />
+                <Stack.Screen
+                  name="details"
+                  options={{
+                    presentation: 'modal',
+                    headerLeft: () => (
+                      <Link href="/" className="my-auto px-4">
+                        <FontAwesome name="arrow-left" size={12} />
+                      </Link>
+                    ),
+                    // headerRight: () => <ThemeToggle />,
+                  }}
+                />
               </Stack>
             </ActionSheetProvider>
           </NavThemeProvider>
