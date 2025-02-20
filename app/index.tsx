@@ -16,12 +16,12 @@ export default function WelcomeConsentScreen() {
       <View className="mx-auto max-w-sm flex-1 justify-between gap-4 px-8 py-4">
         <View className="ios:pt-8 pt-12">
           <Text variant="largeTitle" className="ios:text-left ios:font-black text-center font-bold">
-            Welcome to your
+            Welcome to
           </Text>
           <Text
             variant="largeTitle"
             className="ios:text-left ios:font-black text-primary text-center font-bold">
-            Application
+            Idea Clinic
           </Text>
         </View>
         <View className="gap-8">
@@ -72,18 +72,18 @@ export default function WelcomeConsentScreen() {
 
 const FEATURES = [
   {
-    title: 'Profile Management',
-    description: 'Easily update and manage your personal information, settings, and preferences',
-    icon: 'account-circle-outline',
+    title: 'Q&A with Faculty',
+    description: 'Ask questions and get guidance from experienced professors in real-time.',
+    icon: 'message-question-outline',
   },
   {
-    title: 'Secure Messaging',
-    description: 'Chat securely with friends and family in real-time.',
-    icon: 'message-processing',
+    title: 'Peer Mentorship',
+    description: 'Connect with senior students and alumni for advice and project insights.',
+    icon: 'account-multiple-outline',
   },
   {
-    title: 'Activity Tracking',
-    description: 'Monitor your daily activities and track your progress over time.',
-    icon: 'chart-timeline-variant',
+    title: 'Team Events & Workshops',
+    description: 'Keep track of on-campus events, workshops, and hackathons for project growth.',
+    icon: 'calendar-check',
   },
 ] as const;
