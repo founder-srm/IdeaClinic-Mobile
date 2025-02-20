@@ -36,10 +36,10 @@ export default function LoginPage() {
 
   return (
     <View className="flex-1">
-      
       <AuthAlert />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={80}
         className="flex-1"
       >
         <View className={cn(isKeyboardVisible === false && 'mb-12', 'flex-1 justify-end')}>
