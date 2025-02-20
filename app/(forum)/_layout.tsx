@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+
 import { ThemeToggle } from '~/components/nativewindui/ThemeToggle';
 
 export default function PostsProtectedLayout() {
@@ -18,21 +19,21 @@ export default function PostsProtectedLayout() {
   return (
     <Stack>
       <Stack.Screen name="forum" options={{ headerShown: false }} />
-      <Stack.Screen 
-        name="post/[slug]" 
-        options={{ 
+      <Stack.Screen
+        name="post/[slug]"
+        options={{
           headerShown: true,
           presentation: 'modal',
-          headerTitle: "Post Details"
-        }} 
-        />
-      <Stack.Screen 
-        name="account/[id]" 
-        options={{ 
+          headerTitle: 'Post Details',
+        }}
+      />
+      <Stack.Screen
+        name="account/[id]"
+        options={{
           headerShown: true,
           presentation: 'modal',
-          headerTitle: "Account Profile"
-        }} 
+          headerTitle: 'Account Profile',
+        }}
       />
     </Stack>
   );

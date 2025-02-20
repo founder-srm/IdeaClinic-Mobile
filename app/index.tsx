@@ -20,7 +20,7 @@ export default function WelcomeConsentScreen() {
           </Text>
           <Text
             variant="largeTitle"
-            className="ios:text-left ios:font-black text-primary text-center font-bold">
+            className="ios:text-left ios:font-black text-center font-bold text-primary">
             Idea Clinic
           </Text>
         </View>

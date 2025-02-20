@@ -1,8 +1,9 @@
 import { Link } from 'expo-router';
 import { View } from 'react-native';
+
 import { Container } from '~/components/Container';
-import { Text } from '~/components/nativewindui/Text';
 import { ScreenContent } from '~/components/ScreenContent';
+import { Text } from '~/components/nativewindui/Text';
 
 export default function ForumPage() {
   return (
