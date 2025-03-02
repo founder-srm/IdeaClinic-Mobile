@@ -8,7 +8,6 @@ import { Tables } from '../database.types';
 import { Text } from './nativewindui/Text';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 
-import { cn } from '~/lib/cn';
 import { supabase } from '~/utils/supabase';
 // Assuming you have this setup
 

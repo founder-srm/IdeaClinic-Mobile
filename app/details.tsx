@@ -3,6 +3,7 @@ import { BottomSheetDraggableView } from '@gorhom/bottom-sheet';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { Icon } from '@roninoss/icons';
 import { FlashList } from '@shopify/flash-list';
+import * as NavigationBar from 'expo-navigation-bar';
 import { Link } from 'expo-router';
 import * as StoreReview from 'expo-store-review';
 import { cssInterop } from 'nativewind';
@@ -29,6 +30,13 @@ cssInterop(FlashList, {
 
 export default function DetailsScreen() {
   const bottomSheetModalRef = useSheetRef();
+
+  React.useEffect(() => {
+    NavigationBar.setVisibilityAsync('hidden');
+    return () => {
+      NavigationBar.setVisibilityAsync('visible');
+    };
+  }, []);
 
   const handlePresentModalPress = React.useCallback(() => {
     bottomSheetModalRef.current?.present();

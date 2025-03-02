@@ -3,12 +3,14 @@ import { Tabs } from 'expo-router';
 
 export default function AuthTabLayout() {
   return (
-    <Tabs screenOptions={{ 
-      tabBarHideOnKeyboard: true, 
-      tabBarStyle: {
-        position: 'absolute'
-      },
-      tabBarActiveTintColor: 'rgb(100, 83, 49)' }}>
+    <Tabs
+      screenOptions={{
+        tabBarHideOnKeyboard: true,
+        tabBarStyle: {
+          position: 'absolute',
+        },
+        tabBarActiveTintColor: 'rgb(100, 83, 49)',
+      }}>
       <Tabs.Screen
         name="login"
         options={{

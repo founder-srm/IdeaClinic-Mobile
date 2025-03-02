@@ -1,3 +1,6 @@
+import { useActionSheet } from '@expo/react-native-action-sheet';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import * as NavigationBar from 'expo-navigation-bar';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
@@ -7,8 +10,11 @@ import {
   Animated,
   PanResponder,
   Keyboard,
+  ToastAndroid,
 } from 'react-native';
 
+import { Avatar, AvatarFallback, AvatarImage } from './nativewindui/Avatar';
+import { Button } from './nativewindui/Button';
 import { Text } from './nativewindui/Text';
 import { Input } from './ui/input';
 
@@ -43,6 +49,20 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
 
   // For draggable elements
   const panY = useState(new Animated.Value(0))[0];
+
+  const { showActionSheetWithOptions } = useActionSheet();
+  const [selectedIndex, setSelectedIndex] = useState<number | undefined>();
+
+  const handlePress = () => {
+    const options = ['Create Post', 'Cancel'];
+    const destructiveButtonIndex = 1;
+    showActionSheetWithOptions({ options, destructiveButtonIndex }, (index) =>
+      setSelectedIndex(index)
+    );
+    if (selectedIndex === 0) {
+      ToastAndroid.show('Create Post Navigation', ToastAndroid.SHORT);
+    }
+  };
 
   // Show search bar animation
   const showSearchAnimation = () => {
@@ -89,6 +109,13 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
       }),
     ]).start();
   };
+
+  useEffect(() => {
+    NavigationBar.setVisibilityAsync('hidden');
+    return () => {
+      NavigationBar.setVisibilityAsync('visible');
+    };
+  }, []);
 
   // Add keyboard listener to hide search bar when keyboard is dismissed
   useEffect(() => {
@@ -209,19 +236,28 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
         </View>
 
         <Animated.View className="items-center p-4" style={{ opacity: imageOpacity }}>
-          <View className="items-center">
-            {image && (
-              <Image
-                source={typeof image === 'string' ? { uri: image } : image}
-                className="h-20 w-20 rounded-full border-2 border-white"
-                style={{ borderWidth: 2, borderColor: 'white' }}
-                resizeMode="cover"
+          <View className="flex w-full flex-row items-center gap-4">
+            <Avatar alt="IdeaSpark Avatar" className="">
+              <AvatarImage
+                source={{
+                  uri: image,
+                }}
               />
-            )}
-            <Text className="mt-2 text-xl font-bold text-white">{title}</Text>
+              <AvatarFallback>
+                <Text className="text-foreground">{title}</Text>
+              </AvatarFallback>
+            </Avatar>
+            <Text className="ml-4 text-xl font-bold text-white">Hello {title}!</Text>
             <Text className="text-sm text-white text-opacity-90">{subtitle}</Text>
           </View>
         </Animated.View>
+
+        <View className="flex-row items-center justify-center">
+          <Button onPress={handlePress}>
+            <FontAwesome name="plus" size={12} color="white" />
+            <Text>Create Post</Text>
+          </Button>
+        </View>
 
         <View className="absolute bottom-0 left-0 right-0 flex-row items-center justify-center">
           <View className="h-1 w-10 rounded-full bg-white bg-opacity-50" />

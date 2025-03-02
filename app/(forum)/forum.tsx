@@ -1,4 +1,4 @@
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View, ScrollView, Alert } from 'react-native';
 
@@ -146,6 +146,9 @@ export default function ForumPage() {
           ) : (
             <>
               <Text className="text-center text-2xl font-semibold">Welcome to the Forum</Text>
+              <Button size="sm" onPress={() => router.push('/details')}>
+                <Text className="text-center">Component lib</Text>
+              </Button>
               <ForumPostsList />
             </>
           )}
