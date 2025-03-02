@@ -1,7 +1,6 @@
-import { Stack} from 'expo-router';
 import { Icon } from '@roninoss/icons';
+import { Stack } from 'expo-router';
 
-import { ThemeToggle } from '~/components/nativewindui/ThemeToggle';
 import { Button } from '~/components/nativewindui/Button';
 import { UseSignOut } from '~/hooks/useSignOut';
 
@@ -22,7 +21,17 @@ export default function PostsProtectedLayout() {
   const signOut = UseSignOut();
   return (
     <Stack>
-      <Stack.Screen name="forum" options={{ headerShown: false, headerRight: () => <Button onPress={() => signOut} size="icon" ><Icon name='stop' /></Button> }} />
+      <Stack.Screen
+        name="forum"
+        options={{
+          headerShown: false,
+          headerRight: () => (
+            <Button onPress={() => signOut} size="icon">
+              <Icon name="stop" />
+            </Button>
+          ),
+        }}
+      />
       <Stack.Screen
         name="post/[slug]"
         options={{

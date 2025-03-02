@@ -73,7 +73,7 @@ export default function Layout() {
                   options={{ presentation: 'modal', headerShown: true }}
                 />
                 <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="(forum)" />
+                <Stack.Screen name="(forum)" options={{ headerShown: false }} />
                 <Stack.Screen
                   name="details"
                   options={{
