@@ -8,6 +8,7 @@ import { Tables } from '../database.types';
 import { Text } from './nativewindui/Text';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 
+import { cn } from '~/lib/cn';
 import { supabase } from '~/utils/supabase';
 // Assuming you have this setup
 
@@ -103,12 +104,15 @@ const ForumPostsList: React.FC = () => {
       onPress={() => router.push(`/post/${item.id}`)}
       onLongPress={() => ToastAndroid.show('Like coming soon', ToastAndroid.SHORT)}>
       <Card
-        className="mx-2 my-1 w-[250px]"
+        className="mx-2 my-1 w-[300px] rounded-xl"
         style={{ backgroundColor: item.label_color + '20' }} // Add transparency to color
       >
         <CardHeader className="pb-2">
           <View className="flex-col justify-between">
             <CardTitle className="text-base">{item.title}</CardTitle>
+            <CardDescription className="text-sm" style={{ color: item.label_color }}>
+              {item.label}
+            </CardDescription>
           </View>
           <CardDescription className="text-xs">
             {moment(item.created_at).format('MMM D, YYYY')}
@@ -212,6 +216,7 @@ const ForumPostsList: React.FC = () => {
 
 const styles = StyleSheet.create({
   cardContainer: {
+    backgroundColor: 'transparent',
     marginBottom: 8,
   },
   horizontalList: {
