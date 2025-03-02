@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router, Link } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, View, ScrollView } from 'react-native';
 import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 
 import { AuthAlert } from '~/components/auth/AuthAlert';
@@ -18,7 +18,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const signUp = useStore((state) => state.signUp);
 
-  const { isKeyboardVisible } = useKeyboard();
+  const { isKeyboardVisible, keyboardHeight } = useKeyboard();
 
   const handleSignUp = async () => {
     try {
@@ -30,60 +30,67 @@ export default function SignupPage() {
       console.error('Sign up error:', error);
     }
   };
+
   return (
     <View className="flex-1">
       <AuthAlert />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={80}
+        style={{ flex: 1 }}
         className="flex-1">
-        <View className={cn(isKeyboardVisible === false && 'mb-12', 'flex-1 justify-end')}>
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: 'flex-end',
+            paddingBottom: isKeyboardVisible ? keyboardHeight / 2 : 0,
+          }}
+          keyboardShouldPersistTaps="handled">
           <Animated.View
             key="signup-form"
             entering={FadeInUp.springify().damping(15).delay(100)}
             exiting={FadeOutDown.springify().damping(15)}
-            className="overflow-hidden rounded-t-[32px]">
-              <View className="p-8 pt-12">
-                <Image
-                  source={require('~/assets/logo.png')}
-                  style={{ borderRadius: 8, width: 56, height: 56, marginBottom: 16 }}
-                  contentFit="cover"
-                  transition={1000}
-                  cachePolicy={'memory-disk'}
-                />
-                <Text className="mb-6 text-2xl font-bold text-primary">
-                  Create Account
-                </Text>
-                <Label nativeID="email" className="text-primary">
-                  Email
-                </Label>
-                <Input
-                  aria-label="Email"
-                  value={email}
-                  onChangeText={setEmail}
-                  className="mb-3"
-                  placeholder="Enter your email"
-                />
-                <Label nativeID="password" className="text-primary">
-                  Password
-                </Label>
-                <Input
-                  aria-label="Password"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry
-                  className="mb-6"
-                  placeholder="Choose a password"
-                />
-                <Button onPress={handleSignUp} className="">
-                  <Text className="font-semibold text-white">Sign Up</Text>
-                </Button>
-                <Link href="/(auth)/login" className="self-center mt-4">
-                  <Text className="text-muted-foreground">Already have an account?</Text>
-                </Link>
-              </View>
+            className={cn('overflow-hidden rounded-t-[32px]', isKeyboardVisible && 'mb-4')}>
+            <View className="p-8 pt-12">
+              <Image
+                source={require('~/assets/logo.png')}
+                style={{ borderRadius: 8, width: 56, height: 56, marginBottom: 16 }}
+                contentFit="cover"
+                transition={1000}
+                cachePolicy="memory-disk"
+              />
+              <Text className="mb-6 text-2xl font-bold text-primary">Create Account</Text>
+
+              {/* Form fields */}
+              <Label nativeID="email" className="text-primary">
+                Email
+              </Label>
+              <Input
+                aria-label="Email"
+                value={email}
+                onChangeText={setEmail}
+                className="mb-3"
+                placeholder="Enter your email"
+              />
+              <Label nativeID="password" className="text-primary">
+                Password
+              </Label>
+              <Input
+                aria-label="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                className="mb-6"
+                placeholder="Choose a password"
+              />
+              <Button onPress={handleSignUp} className="">
+                <Text className="font-semibold text-white">Sign Up</Text>
+              </Button>
+              <Link href="/(auth)/login" className="mt-4 self-center">
+                <Text className="text-muted-foreground">Already have an account?</Text>
+              </Link>
+            </View>
           </Animated.View>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </View>
   );

@@ -1,27 +1,24 @@
-import { router } from 'expo-router';
-import { useState } from 'react';
-import { TextInput, KeyboardAvoidingView, Platform, View } from 'react-native';
-import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { Image } from 'expo-image';
-import { Link } from 'expo-router';
+import { router, Link } from 'expo-router';
+import { useState } from 'react';
+import { KeyboardAvoidingView, Platform, View, ScrollView } from 'react-native';
+import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 
-import { Container } from '~/components/Container';
-import { ScreenContent } from '~/components/ScreenContent';
 import { AuthAlert } from '~/components/auth/AuthAlert';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
+import { cn } from '~/lib/cn';
 import { useKeyboard } from '~/lib/useKeyboard';
 import { useStore } from '~/store/store';
-import { cn } from '~/lib/cn';
-import { Label } from '~/components/ui/label';
-import { Input } from '~/components/ui/input';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const login = useStore((state) => state.signIn);
 
-  const { isKeyboardVisible } = useKeyboard();
+  const { isKeyboardVisible, keyboardHeight } = useKeyboard();
 
   const handleSignIn = async () => {
     console.log('Sign in:', email + ' ' + password);
@@ -40,16 +37,20 @@ export default function LoginPage() {
       <AuthAlert />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={80}
-        className="flex-1"
-      >
-        <View className={cn(isKeyboardVisible === false && 'mb-12', 'flex-1 justify-end')}>
+        style={{ flex: 1 }}
+        className="flex-1">
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: 'flex-end',
+            paddingBottom: isKeyboardVisible ? keyboardHeight / 2 : 0,
+          }}
+          keyboardShouldPersistTaps="handled">
           <Animated.View
             key="login-form"
             entering={FadeInUp.springify().damping(15).delay(100)}
             exiting={FadeOutDown.springify().damping(15)}
-            className="overflow-hidden rounded-t-[32px]"
-          >
+            className={cn('overflow-hidden rounded-t-[32px]', isKeyboardVisible && 'mb-4')}>
             <View className="p-8 pt-12">
               <Image
                 source={require('~/assets/logo.png')}
@@ -58,9 +59,9 @@ export default function LoginPage() {
                 transition={1000}
                 cachePolicy="memory-disk"
               />
-              <Text className="mb-6 text-2xl font-bold text-primary">
-                Welcome Back
-              </Text>
+              <Text className="mb-6 text-2xl font-bold text-primary">Welcome Back</Text>
+
+              {/* Form fields */}
               <Label nativeID="email" className="text-primary">
                 Email
               </Label>
@@ -85,12 +86,12 @@ export default function LoginPage() {
               <Button onPress={handleSignIn}>
                 <Text className="font-semibold text-white">Login</Text>
               </Button>
-              <Link href="/(auth)/signup" className="self-center mt-4">
+              <Link href="/(auth)/signup" className="mt-4 self-center">
                 <Text className="text-muted-foreground">Need an account?</Text>
               </Link>
             </View>
           </Animated.View>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </View>
   );
