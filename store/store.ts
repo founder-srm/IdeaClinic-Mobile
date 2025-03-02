@@ -39,7 +39,10 @@ export const useStore = create<AuthState & BearState>((set) => ({
         email,
         password,
       });
-      if (error) throw error;
+      if (error) {
+        set({ authError: error, authSuccess: false });
+        return { success: false, error };
+      }
       set({ session: data.session, user: data.user, authSuccess: true, authError: null });
       return { success: true };
     } catch (error) {
