@@ -101,7 +101,7 @@ const ForumPostsList: React.FC = () => {
     <TouchableOpacity
       style={styles.cardContainer}
       onPress={() => router.push(`/post/${item.id}`)}
-      onLongPress={() => ToastAndroid.show('Like coming soon', ToastAndroid.SHORT)}>
+      onLongPress={() => ToastAndroid.show('more options coming soon', ToastAndroid.SHORT)}>
       <Card
         className="mx-2 my-1 w-[300px] rounded-xl"
         style={{ backgroundColor: item.label_color + '20' }} // Add transparency to color
