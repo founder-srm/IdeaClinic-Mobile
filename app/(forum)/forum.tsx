@@ -5,6 +5,7 @@ import { View, ScrollView, Alert } from 'react-native';
 import { getProfileById } from '~/actions/forum/profile';
 import { Container } from '~/components/Container';
 import { EnhancedAvatarHeader } from '~/components/EnhancedAvatarHeader';
+import ForumPostsList from '~/components/ForumPostsList';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { UseSignOut } from '~/hooks/useSignOut';
@@ -153,26 +154,7 @@ export default function ForumPage() {
                   <Text className="text-center text-white">View Sample Account</Text>
                 </Link>
               </View>
-              {profile && (
-                <View className="mt-4 rounded-lg bg-gray-800 p-4">
-                  <Text className="mb-2 text-center text-xl font-bold text-white">
-                    Profile Information
-                  </Text>
-                  {profile.full_name && (
-                    <Text className="text-white">Name: {profile.full_name}</Text>
-                  )}
-                  {profile.username && (
-                    <Text className="text-white">Username: {profile.username}</Text>
-                  )}
-                  {profile.email && <Text className="text-white">Email: {profile.email}</Text>}
-                  {profile.dept && <Text className="text-white">Department: {profile.dept}</Text>}
-                  {profile.title && <Text className="text-white">Title: {profile.title}</Text>}
-                  {profile.bio && <Text className="mt-2 text-white">Bio: {profile.bio}</Text>}
-                  <Text className="mt-2 text-xs text-gray-400">
-                    Last updated: {new Date(profile.updated_at).toLocaleDateString()}
-                  </Text>
-                </View>
-              )}
+              <ForumPostsList />
             </>
           )}
         </View>
