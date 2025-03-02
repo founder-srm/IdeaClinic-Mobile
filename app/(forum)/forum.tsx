@@ -146,14 +146,6 @@ export default function ForumPage() {
           ) : (
             <>
               <Text className="text-center text-2xl font-semibold">Welcome to the Forum</Text>
-              <View className="flex gap-4">
-                <Link href="/post/hello" className="rounded-lg bg-blue-500 p-4">
-                  <Text className="text-center text-white">View Sample Post</Text>
-                </Link>
-                <Link href="/account/123" className="rounded-lg bg-green-500 p-4">
-                  <Text className="text-center text-white">View Sample Account</Text>
-                </Link>
-              </View>
               <ForumPostsList />
             </>
           )}

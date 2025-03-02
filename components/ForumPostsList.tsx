@@ -204,11 +204,11 @@ const ForumPostsList: React.FC = () => {
         }}
         estimatedItemSize={350}
         showsVerticalScrollIndicator={false}
-        ListHeaderComponent={() => (
-          <View className="pt-4">
-            <Text className="mb-4 ml-4 text-2xl font-bold">Forum Posts</Text>
-          </View>
-        )}
+        // ListHeaderComponent={() => (
+        //   <View className="pt-4">
+        //     <Text className="mb-4 ml-4 text-2xl font-bold">Forum Posts</Text>
+        //   </View>
+        // )}
       />
     </View>
   );
