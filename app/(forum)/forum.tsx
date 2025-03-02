@@ -109,7 +109,7 @@ export default function ForumPage() {
 
   // Build profile data from both user and profile information
   const profileData = {
-    color: COLORS.dark.primary,
+    color: COLORS.dark.foreground,
     image: profile?.avatar_url || 'https://via.placeholder.com/100',
     author: profile?.full_name || profile?.username || user?.id || 'User',
     about:
@@ -134,7 +134,7 @@ export default function ForumPage() {
             <>
               <Text className="text-center text-xl font-semibold">Search Results</Text>
               {searchResults.map((result) => (
-                <View key={result.id} className="rounded-lg bg-gray-800 p-3">
+                <View key={result.id} className="rounded-lg bg-primary p-3">
                   <Text className="font-bold text-white">{result.title}</Text>
                   <Text className="mt-1 text-white text-opacity-80" numberOfLines={2}>
                     {result.content}

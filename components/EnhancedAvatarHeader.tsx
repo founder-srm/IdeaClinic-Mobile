@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Image,
   TouchableOpacity,
   StatusBar,
-  TextInput,
   Animated,
   PanResponder,
+  Keyboard,
 } from 'react-native';
 
 import { Text } from './nativewindui/Text';
+import { Input } from './ui/input';
 
 interface EnhancedAvatarHeaderProps {
   backgroundColor?: string;
@@ -35,8 +36,72 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchBar, setShowSearchBar] = useState(false);
 
+  // Animation values
+  const searchBarWidth = useRef(new Animated.Value(0)).current;
+  const searchButtonOpacity = useRef(new Animated.Value(1)).current;
+  const searchBarOpacity = useRef(new Animated.Value(0)).current;
+
   // For draggable elements
   const panY = useState(new Animated.Value(0))[0];
+
+  // Show search bar animation
+  const showSearchAnimation = () => {
+    // Start animations
+    Animated.parallel([
+      Animated.timing(searchBarWidth, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: false,
+      }),
+      Animated.timing(searchButtonOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: false,
+      }),
+      Animated.timing(searchBarOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: false,
+      }),
+    ]).start(() => {
+      setShowSearchBar(true);
+    });
+  };
+
+  // Hide search bar animation
+  const hideSearchAnimation = () => {
+    setShowSearchBar(false);
+    Animated.parallel([
+      Animated.timing(searchBarWidth, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: false,
+      }),
+      Animated.timing(searchButtonOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: false,
+      }),
+      Animated.timing(searchBarOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: false,
+      }),
+    ]).start();
+  };
+
+  // Add keyboard listener to hide search bar when keyboard is dismissed
+  useEffect(() => {
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      if (showSearchBar) {
+        hideSearchAnimation();
+      }
+    });
+
+    return () => {
+      keyboardDidHideListener.remove();
+    };
+  }, [showSearchBar]);
 
   // Create a PanResponder for dragging
   const panResponder = PanResponder.create({
@@ -77,6 +142,16 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
     }
   };
 
+  // Calculate animated styles
+  const searchBarStyle = {
+    flex: searchBarWidth,
+    opacity: searchBarOpacity,
+    position: 'absolute' as 'absolute',
+    left: 50,
+    right: 50,
+    zIndex: 10,
+  };
+
   return (
     <View className="flex-1">
       <Animated.View
@@ -84,7 +159,7 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
         {...panResponder.panHandlers}
         className="pb-0 pt-10">
         <View className="flex-row items-center justify-between px-4 py-2">
-          <TouchableOpacity onPress={onLogout} className="p-2">
+          <TouchableOpacity onPress={onLogout} className="z-20 p-2">
             <Image
               source={require('../assets/icons/logout.png')}
               className="h-6 w-6"
@@ -92,15 +167,39 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
             />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => setShowSearchBar(!showSearchBar)} className="p-2">
-            <Image
-              source={require('../assets/icons/search.png')}
-              className="h-6 w-6"
-              style={{ tintColor: 'white' }}
-            />
-          </TouchableOpacity>
+          <Animated.View
+            style={searchBarStyle}
+            className="rounded-lg bg-background bg-opacity-20 px-2">
+            {showSearchBar && (
+              <Input
+                placeholder="Search..."
+                placeholderTextColor="rgba(255, 255, 255, 0.7)"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                onSubmitEditing={handleSearch}
+                className="h-8 bg-transparent text-sm text-black"
+                autoFocus
+                onBlur={hideSearchAnimation}
+              />
+            )}
+          </Animated.View>
 
-          <TouchableOpacity onPress={onSettings} className="p-2">
+          <View className="flex-1 items-center">
+            <Animated.View style={{ opacity: searchButtonOpacity }}>
+              <TouchableOpacity
+                onPress={showSearchAnimation}
+                className="p-2"
+                disabled={showSearchBar}>
+                <Image
+                  source={require('../assets/icons/search.png')}
+                  className="h-6 w-6"
+                  style={{ tintColor: 'white' }}
+                />
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
+
+          <TouchableOpacity onPress={onSettings} className="z-20 p-2">
             <Image
               source={require('../assets/icons/settings.png')}
               className="h-6 w-6"
@@ -108,26 +207,6 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
             />
           </TouchableOpacity>
         </View>
-
-        {showSearchBar && (
-          <View className="mx-4 mb-2 flex-row items-center rounded-lg bg-white bg-opacity-20 px-3 py-2">
-            <TextInput
-              placeholder="Search..."
-              placeholderTextColor="rgba(255, 255, 255, 0.7)"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              onSubmitEditing={handleSearch}
-              className="flex-1 text-white"
-            />
-            <TouchableOpacity onPress={handleSearch} className="ml-2">
-              <Image
-                source={require('../assets/icons/search.png')}
-                className="h-5 w-5"
-                style={{ tintColor: 'white' }}
-              />
-            </TouchableOpacity>
-          </View>
-        )}
 
         <Animated.View className="items-center p-4" style={{ opacity: imageOpacity }}>
           <View className="items-center">
@@ -149,7 +228,7 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
         </View>
       </Animated.View>
 
-      <View className="-mt-5 flex-1 rounded-t-3xl bg-gray-900">{children}</View>
+      <View className="-mt-5 flex-1 rounded-t-3xl bg-background">{children}</View>
 
       <StatusBar barStyle="light-content" backgroundColor={backgroundColor} translucent />
     </View>
