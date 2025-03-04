@@ -79,7 +79,7 @@ export default function Layout() {
                   options={{
                     presentation: 'modal',
                     headerLeft: () => (
-                      <Link href="/" className="my-auto px-4">
+                      <Link href="/forum" className="my-auto px-4">
                         <FontAwesome name="arrow-left" size={12} />
                       </Link>
                     ),
