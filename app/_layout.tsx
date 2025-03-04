@@ -73,13 +73,13 @@ export default function Layout() {
                   options={{ presentation: 'modal', headerShown: true }}
                 />
                 <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="(forum)" />
+                <Stack.Screen name="(forum)" options={{ headerShown: false }} />
                 <Stack.Screen
                   name="details"
                   options={{
                     presentation: 'modal',
                     headerLeft: () => (
-                      <Link href="/" className="my-auto px-4">
+                      <Link href="/forum" className="my-auto px-4">
                         <FontAwesome name="arrow-left" size={12} />
                       </Link>
                     ),

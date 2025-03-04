@@ -1,5 +1,8 @@
+import { Icon } from '@roninoss/icons';
 import { Stack } from 'expo-router';
-import { ThemeToggle } from '~/components/nativewindui/ThemeToggle';
+
+import { Button } from '~/components/nativewindui/Button';
+import { UseSignOut } from '~/hooks/useSignOut';
 
 export default function PostsProtectedLayout() {
   //     const { session, isLoading } = useSession();
@@ -15,24 +18,35 @@ export default function PostsProtectedLayout() {
   //     // On web, static rendering will stop here as the user is not authenticated
   //     // in the headless Node process that the pages are rendered in.
   //     return <Redirect href="/sign-in" />;
+  const signOut = UseSignOut();
   return (
     <Stack>
-      <Stack.Screen name="forum" options={{ headerShown: false }} />
-      <Stack.Screen 
-        name="post/[slug]" 
-        options={{ 
+      <Stack.Screen
+        name="forum"
+        options={{
+          headerShown: false,
+          headerRight: () => (
+            <Button onPress={() => signOut} size="icon">
+              <Icon name="stop" />
+            </Button>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="post/[slug]"
+        options={{
           headerShown: true,
           presentation: 'modal',
-          headerTitle: "Post Details"
-        }} 
-        />
-      <Stack.Screen 
-        name="account/[id]" 
-        options={{ 
+          headerTitle: 'Post Details',
+        }}
+      />
+      <Stack.Screen
+        name="account/[id]"
+        options={{
           headerShown: true,
           presentation: 'modal',
-          headerTitle: "Account Profile"
-        }} 
+          headerTitle: 'Account Profile',
+        }}
       />
     </Stack>
   );
