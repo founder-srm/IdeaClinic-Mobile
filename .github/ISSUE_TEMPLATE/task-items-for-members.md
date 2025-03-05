@@ -7,44 +7,33 @@ assignees: greeenboi
 
 ---
 
----
-name: Task
-about: Create a task for team assignment
-title: "[TASK] "
-labels: task
-assignees: ''
----
-
 ### Task Overview
-[Brief description of what needs to be accomplished]
+[Brief description of what needs to be accomplished]↴
 
-> **Temp**: Provide a clear, concise description of the task. Include the WHY (purpose/goal), WHAT (specific deliverables), and any important context. Example: "Implement user authentication flow using OAuth2 to allow users to sign in with their Google accounts. This is needed to support the new social login feature requested by stakeholders."
+> [!tip]
+> **Temp**: Provide a clear, concise description of the task. Include the WHY (purpose/goal), WHAT (specific deliverables), and any important context. Example: "Implement user authentication flow using OAuth2 to allow users to sign in with their Google accounts. This is needed to support the new social login feature requested by stakeholders." 
 
 ### Prerequisites
-- [ ] Required to have Installed and joined [Doppler](https://dashboard.doppler.com/workplace/55ce728ac58e146cffda/projects/foundersclub) teams.
+- [ ] Required to have Installed and joined [Doppler](https://dashboard.doppler.com/workplace/55ce728ac58e146cffda/projects/ideaclinic-mobile) teams.
 - [ ] Required to have all the recommended extensions installed (vscode)
-- [ ] Required to be on a fork
+- [ ] If working with an iphone, you would need an android emulator setup
+- [ ] Required to be on a fork and on the branch v1.1.0
+- [ ] Request access to ideaclinic supabase project
 - [ ] Relevant documentation reviewed
-
-### References
-- Related issues: #
-- Documentation links:
-- Design specs:
-- API documentation:
 
 ### Files to Modify
 ```
-src/
-├─ component/
-│  ├─ file1.ts
-│  ├─ file2.ts
+app/
+├─ (forum)/
+│  ├─ _layout.tsx
+│  ├─ forum.tsx
 └─ ...
 ```
 
 ### Do Not Modify
 The following files/components should not be changed:
-- `src/core/*`
-- `src/constants/*`
+- `app.json`
+- `app/_layout.tsx`
 - Any configuration files without prior approval
 
 ### Implementation Steps
@@ -54,14 +43,14 @@ The following files/components should not be changed:
 2. [ ] Step 2
 3. [ ] Step 3
 
-### Testing Requirements
-- [ ] Unit tests
-- [ ] Vercel deployments in pr
-- [ ] Integration tests
-- [ ] Manual testing scenarios
+### Testing Requirements Before Merge Commit
+- [ ] Run Formatting `bun format`
+- [ ] Run Linting `bun lint`
+- [ ] Run a successful prebuild `bun prebuild`
+- [ ] Verify Package Integrity `bun x expo-doctor`
 
 ### Additional Context
-Contact @greeenboi  for setup of doppler
+Contact @greeenboi  for setup of doppler or supabase or android studio
 [Any other relevant information, constraints, or considerations]
 
 ### Definition of Done
