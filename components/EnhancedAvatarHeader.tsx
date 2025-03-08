@@ -1,6 +1,7 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import * as NavigationBar from 'expo-navigation-bar';
+import { useRouter } from 'expo-router';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
@@ -42,6 +43,8 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchBar, setShowSearchBar] = useState(false);
 
+  const router = useRouter();
+
   // Animation values
   const searchBarWidth = useRef(new Animated.Value(0)).current;
   const searchButtonOpacity = useRef(new Animated.Value(1)).current;
@@ -60,7 +63,8 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
       setSelectedIndex(index)
     );
     if (selectedIndex === 0) {
-      ToastAndroid.show('Create Post Navigation', ToastAndroid.SHORT);
+      ToastAndroid.show('Create New Post', ToastAndroid.SHORT);
+      router.push('/post/new');
     }
   };
 
