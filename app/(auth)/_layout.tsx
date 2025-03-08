@@ -1,7 +1,15 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import * as NavigationBar from 'expo-navigation-bar';
 import { Tabs } from 'expo-router';
+import { useEffect } from 'react';
 
 export default function AuthTabLayout() {
+  useEffect(() => {
+    NavigationBar.setVisibilityAsync('hidden');
+    return () => {
+      NavigationBar.setVisibilityAsync('visible');
+    };
+  }, []);
   return (
     <Tabs
       screenOptions={{

@@ -8,6 +8,7 @@ import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
+import { PortalHost } from '@rn-primitives/portal';
 import { useFonts } from 'expo-font';
 import * as NavigationBar from 'expo-navigation-bar';
 import { Link, Stack } from 'expo-router';
@@ -92,6 +93,7 @@ export default function Layout() {
           </NavThemeProvider>
         </BottomSheetModalProvider>
       </GestureHandlerRootView>
+      <PortalHost />
     </AuthProvider>
   );
 }

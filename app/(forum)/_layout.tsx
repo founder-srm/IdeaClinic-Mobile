@@ -1,23 +1,18 @@
 import { Icon } from '@roninoss/icons';
+import * as NavigationBar from 'expo-navigation-bar';
 import { Stack } from 'expo-router';
+import { useEffect } from 'react';
 
 import { Button } from '~/components/nativewindui/Button';
 import { UseSignOut } from '~/hooks/useSignOut';
 
 export default function PostsProtectedLayout() {
-  //     const { session, isLoading } = useSession();
-
-  //   // You can keep the splash screen open, or render a loading screen like we do here.
-  //   if (isLoading) {
-  //     return <Text>Loading...</Text>;
-  //   }
-
-  //   // Only require authentication within the (app) group's layout as users
-  //   // need to be able to access the (auth) group and sign in again.
-  //   if (!session) {
-  //     // On web, static rendering will stop here as the user is not authenticated
-  //     // in the headless Node process that the pages are rendered in.
-  //     return <Redirect href="/sign-in" />;
+  useEffect(() => {
+    NavigationBar.setVisibilityAsync('hidden');
+    return () => {
+      NavigationBar.setVisibilityAsync('visible');
+    };
+  }, []);
   const signOut = UseSignOut();
   return (
     <Stack>
