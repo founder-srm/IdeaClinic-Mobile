@@ -18,6 +18,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { ThemeToggle } from '~/components/nativewindui/ThemeToggle';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
+import { AuthProvider } from '~/providers/AuthProvider';
 import { NAV_THEME } from '~/theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -54,7 +55,7 @@ export default function Layout() {
   }
 
   return (
-    <>
+    <AuthProvider>
       <StatusBar
         key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
         style={isDarkColorScheme ? 'light' : 'dark'}
@@ -91,6 +92,6 @@ export default function Layout() {
           </NavThemeProvider>
         </BottomSheetModalProvider>
       </GestureHandlerRootView>
-    </>
+    </AuthProvider>
   );
 }
