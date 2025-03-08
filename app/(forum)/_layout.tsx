@@ -37,7 +37,17 @@ export default function PostsProtectedLayout() {
         options={{
           headerShown: true,
           presentation: 'modal',
+          animation: 'slide_from_right',
           headerTitle: 'Post Details',
+        }}
+      />
+      <Stack.Screen
+        name="post/new"
+        options={{
+          headerShown: true,
+          presentation: 'modal',
+          animation: 'slide_from_right',
+          headerTitle: 'New Post',
         }}
       />
       <Stack.Screen
@@ -45,6 +55,7 @@ export default function PostsProtectedLayout() {
         options={{
           headerShown: true,
           presentation: 'modal',
+          animation: 'slide_from_left',
           headerTitle: 'Account Profile',
         }}
       />
