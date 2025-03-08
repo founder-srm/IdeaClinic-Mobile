@@ -11,7 +11,6 @@ import {
   Animated,
   PanResponder,
   Keyboard,
-  ToastAndroid,
 } from 'react-native';
 
 import { Avatar, AvatarFallback, AvatarImage } from './nativewindui/Avatar';
@@ -54,18 +53,15 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
   const panY = useState(new Animated.Value(0))[0];
 
   const { showActionSheetWithOptions } = useActionSheet();
-  const [selectedIndex, setSelectedIndex] = useState<number | undefined>();
 
   const handlePress = () => {
     const options = ['Create Post', 'Cancel'];
     const destructiveButtonIndex = 1;
-    showActionSheetWithOptions({ options, destructiveButtonIndex }, (index) =>
-      setSelectedIndex(index)
-    );
-    if (selectedIndex === 0) {
-      ToastAndroid.show('Create New Post', ToastAndroid.SHORT);
-      router.push('/post/new');
-    }
+    showActionSheetWithOptions({ options, destructiveButtonIndex }, (index) => {
+      if (index === 0) {
+        router.push('/post/new');
+      }
+    });
   };
 
   // Show search bar animation

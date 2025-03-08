@@ -32,6 +32,7 @@
     "@shopify/flash-list": "1.7.1",
     "@supabase/supabase-js": "^2.38.4",
     "class-variance-authority": "^0.7.1",
+    "cloudinary-react-native": "^1.0.1",
     "clsx": "^2.1.1",
     "expo": "^52.0.28",
     "expo-constants": "~17.0.5",
