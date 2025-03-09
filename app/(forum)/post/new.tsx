@@ -39,6 +39,7 @@ export default function PostCreationPage() {
   const [labelColor, setLabelColor] = useState('');
   const [localImageUri, setLocalImageUri] = useState<string | null>(null);
   const [cloudinaryUrl, setCloudinaryUrl] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [cloudinaryResource, setCloudinaryResource] = useState<any>(null);
   const [updating, setUpdating] = useState(false);
 
@@ -129,14 +130,6 @@ export default function PostCreationPage() {
         label: selectedTag,
         label_color: labelColor,
         banner_url: bannerUrl,
-        // Store additional Cloudinary metadata if needed
-        banner_metadata: cloudinaryResource
-          ? JSON.stringify({
-              public_id: cloudinaryResource.public_id,
-              resource_type: cloudinaryResource.resource_type,
-              version: cloudinaryResource.version,
-            })
-          : null,
       });
 
       if (error) {

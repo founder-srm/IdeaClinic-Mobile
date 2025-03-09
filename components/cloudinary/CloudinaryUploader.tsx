@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ActivityIndicator, ToastAndroid } from 'react-native';
