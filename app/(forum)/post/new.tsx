@@ -1,36 +1,35 @@
-import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { SetStateAction, useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  ToastAndroid,
-} from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, ToastAndroid } from 'react-native';
 import uuid from 'react-native-uuid';
 
 import { Container } from '~/components/Container';
+import CloudinaryUploader from '~/components/cloudinary/CloudinaryUploader';
 import { Picker, PickerItem } from '~/components/nativewindui/Picker';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
+import { Separator } from '~/components/ui/separator';
 import { Textarea } from '~/components/ui/textarea';
 import { useUser } from '~/hooks/useUser';
+import config from '~/utils/config';
 import { supabase } from '~/utils/supabase';
+
+// Environment variables would be better, but for the example:
+const CLOUDINARY_CLOUD_NAME = config.cloudinary_cloud_name;
+const CLOUDINARY_UPLOAD_PRESET = 'ideaclinic-banners';
 
 export default function PostCreationPage() {
   const router = useRouter();
   const { id: userId } = useUser();
   const id = uuid.v4();
-  const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [labelColor, setLabelColor] = useState('');
-  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [localImageUri, setLocalImageUri] = useState<string | null>(null);
+  const [cloudinaryUrl, setCloudinaryUrl] = useState<string | null>(null);
+  const [cloudinaryResource, setCloudinaryResource] = useState<any>(null);
   const [updating, setUpdating] = useState(false);
 
   const tags = [
@@ -49,48 +48,32 @@ export default function PostCreationPage() {
     { value: 'Other', label: 'Other', color: '#CCCCCC' },
   ];
 
-  const pickImage = async () => {
-    // Check if we already have permission
-    if (!status?.granted) {
-      // Request permission if we don't have it
-      const permissionResult = await requestPermission();
-
-      if (!permissionResult.granted) {
-        ToastAndroid.show(
-          'Permission to access media library is required to upload images',
-          ToastAndroid.LONG
-        );
-        return;
-      }
-    }
-
-    // No permissions request is necessary for launching the image library
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [16, 9],
-      quality: 1,
-    });
-
-    console.log(result);
-
-    if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
-      // Comment: Future Cloudinary integration would go here
-    }
-  };
-
-  const handleRemoveImage = () => {
-    setImageUri(null);
-    // Comment: Future Cloudinary delete functionality would go here
-  };
-
   const handleTagChange = (itemValue: SetStateAction<string>) => {
     setSelectedTag(itemValue);
     const selectedTagObj = tags.find((tag) => tag.value === itemValue);
     if (selectedTagObj) {
       setLabelColor(selectedTagObj.color);
     }
+  };
+
+  const handleImageSelected = (uri: string | null) => {
+    setLocalImageUri(uri);
+  };
+
+  const handleImageUploaded = (response: any) => {
+    if (response && response.secure_url) {
+      setCloudinaryUrl(response.secure_url);
+      setCloudinaryResource(response);
+      ToastAndroid.show('Image uploaded successfully!', ToastAndroid.SHORT);
+    } else {
+      ToastAndroid.show('Failed to upload image', ToastAndroid.LONG);
+    }
+  };
+
+  const handleImageRemoved = () => {
+    // Clear the Cloudinary related state when image is removed
+    setCloudinaryUrl(null);
+    setCloudinaryResource(null);
   };
 
   async function testCreateThread({ threadId, title }: { threadId: string; title: string }) {
@@ -124,8 +107,8 @@ export default function PostCreationPage() {
     setUpdating(true);
 
     try {
-      // Comment: In production, you would first upload image to Cloudinary and get URL
-      // Then use that URL in the banner_url field below
+      // Use the Cloudinary URL if available, otherwise use local URI
+      const bannerUrl = cloudinaryUrl || localImageUri;
 
       const { data, error } = await supabase.from('posts').insert({
         id,
@@ -135,7 +118,15 @@ export default function PostCreationPage() {
         likes: [],
         label: selectedTag,
         label_color: labelColor,
-        banner_url: imageUri, // This would be the Cloudinary URL in production
+        banner_url: bannerUrl,
+        // Store additional Cloudinary metadata if needed
+        banner_metadata: cloudinaryResource
+          ? JSON.stringify({
+              public_id: cloudinaryResource.public_id,
+              resource_type: cloudinaryResource.resource_type,
+              version: cloudinaryResource.version,
+            })
+          : null,
       });
 
       if (error) {
@@ -197,7 +188,22 @@ export default function PostCreationPage() {
                 </View>
               )}
             </View>
-
+            <Separator className="my-2" />
+            {/* Cloudinary Image Upload */}
+            <View className="mb-6">
+              <Text className="mb-1.5 text-sm font-medium text-gray-700">Banner Image</Text>
+              <CloudinaryUploader
+                onImageSelected={handleImageSelected}
+                onImageUploaded={handleImageUploaded}
+                onImageRemoved={handleImageRemoved}
+                cloudName={CLOUDINARY_CLOUD_NAME}
+                uploadPreset={CLOUDINARY_UPLOAD_PRESET}
+              />
+              {cloudinaryUrl && (
+                <Text className="mt-1 text-xs text-green-600">✓ Uploaded to cloud</Text>
+              )}
+            </View>
+            <Separator className="my-2" />
             {/* Content Input */}
             <View className="mb-4">
               <Text className="mb-1.5 text-sm font-medium text-gray-700">Content</Text>
@@ -208,42 +214,6 @@ export default function PostCreationPage() {
                 numberOfLines={8}
                 className="min-h-[160px]"
               />
-            </View>
-
-            {/* Image Upload */}
-            <View className="mb-6">
-              <Text className="mb-1.5 text-sm font-medium text-gray-700">Banner Image</Text>
-
-              <TouchableOpacity
-                onPress={pickImage}
-                className="mb-2 flex items-center justify-center rounded-md bg-gray-100 py-2">
-                <Text className="text-gray-700">
-                  {status?.granted
-                    ? 'Pick an image from camera roll'
-                    : 'Grant permission and pick image'}
-                </Text>
-              </TouchableOpacity>
-
-              {imageUri ? (
-                <View className="relative">
-                  <Image
-                    source={{ uri: imageUri }}
-                    className="h-48 w-full rounded-md"
-                    resizeMode="cover"
-                  />
-                  <TouchableOpacity
-                    onPress={handleRemoveImage}
-                    className="absolute right-2 top-2 rounded-full bg-black/70 p-2">
-                    <Text className="text-xs text-white">Remove</Text>
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <View className="h-48 items-center justify-center rounded-md border border-dashed border-gray-300">
-                  <Text className="text-gray-500">
-                    {status?.granted ? 'No image selected' : 'Media library permission required'}
-                  </Text>
-                </View>
-              )}
             </View>
 
             {/* Submit Button */}

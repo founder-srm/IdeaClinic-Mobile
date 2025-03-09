@@ -27,6 +27,7 @@
     "@rn-primitives/avatar": "^1.1.0",
     "@rn-primitives/label": "^1.1.0",
     "@rn-primitives/select": "^1.1.0",
+    "@rn-primitives/separator": "^1.1.0",
     "@rn-primitives/slot": "^1.1.0",
     "@rn-primitives/types": "^1.1.0",
     "@roninoss/icons": "^0.0.4",
