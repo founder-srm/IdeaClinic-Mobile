@@ -15,9 +15,10 @@ export default function AuthTabLayout() {
       screenOptions={{
         tabBarHideOnKeyboard: true,
         tabBarStyle: {
-          position: 'absolute',
+          display: 'none',
         },
         tabBarActiveTintColor: 'rgb(100, 83, 49)',
+        tabBarShowLabel: false,
       }}>
       <Tabs.Screen
         name="login"
