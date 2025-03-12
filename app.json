@@ -2,8 +2,8 @@
   "expo": {
     "name": "ideaclinic-mobile",
     "slug": "ideaclinic-mobile",
-    "version": "1.0.0",
-    "scheme": "ideaclinic-mobile",
+    "version": "1.1.0",
+    "scheme": "com.ideaclinic-mobile",
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -54,7 +54,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.foundersclub.ideaclinicmobile"
     },
     "extra": {
       "router": {

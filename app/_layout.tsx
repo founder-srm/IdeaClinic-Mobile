@@ -8,6 +8,7 @@ import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
+import { PortalHost } from '@rn-primitives/portal';
 import { useFonts } from 'expo-font';
 import * as NavigationBar from 'expo-navigation-bar';
 import { Link, Stack } from 'expo-router';
@@ -18,6 +19,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { ThemeToggle } from '~/components/nativewindui/ThemeToggle';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
+import { AuthProvider } from '~/providers/AuthProvider';
 import { NAV_THEME } from '~/theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -54,7 +56,7 @@ export default function Layout() {
   }
 
   return (
-    <>
+    <AuthProvider>
       <StatusBar
         key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
         style={isDarkColorScheme ? 'light' : 'dark'}
@@ -73,13 +75,14 @@ export default function Layout() {
                   options={{ presentation: 'modal', headerShown: true }}
                 />
                 <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="(forum)" />
+                <Stack.Screen name="(settings)" options={{ headerShown: false }} />
+                <Stack.Screen name="(forum)" options={{ headerShown: false }} />
                 <Stack.Screen
                   name="details"
                   options={{
                     presentation: 'modal',
                     headerLeft: () => (
-                      <Link href="/" className="my-auto px-4">
+                      <Link href="/forum" className="my-auto px-4">
                         <FontAwesome name="arrow-left" size={12} />
                       </Link>
                     ),
@@ -91,6 +94,7 @@ export default function Layout() {
           </NavThemeProvider>
         </BottomSheetModalProvider>
       </GestureHandlerRootView>
-    </>
+      <PortalHost />
+    </AuthProvider>
   );
 }
