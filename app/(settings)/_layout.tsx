@@ -14,7 +14,13 @@ export default function PostsProtectedLayout() {
       <Stack.Screen
         name="settings"
         options={{
-          headerShown: false,
+          headerShown: true,
+          headerBackButtonDisplayMode: 'minimal',
+          headerTitle: 'Settings',
+          headerTransparent: true,
+          headerBlurEffect: 'dark',
+          headerTintColor: 'black',
+          headerBackVisible: true,
           presentation: 'fullScreenModal',
           animation: 'slide_from_bottom',
         }}

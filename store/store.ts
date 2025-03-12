@@ -56,7 +56,10 @@ export const useStore = create<AuthState & BearState>((set) => ({
         email,
         password,
       });
-      if (error) throw error;
+      if (error) {
+        set({ authError: error, authSuccess: false });
+        return { success: false, error };
+      }
       set({ session: data.session, user: data.user, authSuccess: true, authError: null });
       return { success: true };
     } catch (error) {
@@ -69,3 +72,13 @@ export const useStore = create<AuthState & BearState>((set) => ({
     set({ session: null, user: null });
   },
 }));
+
+// Add direct selectors for easier access in components
+export const useUser = () => useStore((state) => state.user);
+export const useSession = () => useStore((state) => state.session);
+export const useAuthStatus = () =>
+  useStore((state) => ({
+    loading: state.loading,
+    error: state.authError,
+    success: state.authSuccess,
+  }));
