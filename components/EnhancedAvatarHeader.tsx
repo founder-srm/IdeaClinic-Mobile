@@ -24,7 +24,7 @@ interface EnhancedAvatarHeaderProps {
   title?: string;
   subtitle?: string;
   onLogout?: () => void;
-  onSettings?: () => void;
+  onSettings?: string;
   onSearch?: (query: string) => void;
   children: React.ReactNode;
 }
@@ -32,10 +32,10 @@ interface EnhancedAvatarHeaderProps {
 export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
   backgroundColor = '#4B9CD3',
   image,
+  onSettings,
   title,
   subtitle,
   onLogout,
-  onSettings,
   onSearch,
   children,
 }) => {
@@ -60,6 +60,18 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
     showActionSheetWithOptions({ options, destructiveButtonIndex }, (index) => {
       if (index === 0) {
         router.push('/post/new');
+      }
+    });
+  };
+
+  const handleSettingsPress = () => {
+    const options = ['My Profile', 'Settings', 'Cancel'];
+    const destructiveButtonIndex = 2;
+    showActionSheetWithOptions({ options, destructiveButtonIndex }, (index) => {
+      if (index === 0) {
+        router.push(`/account/${onSettings}`);
+      } else if (index === 1) {
+        router.push('/settings');
       }
     });
   };
@@ -226,7 +238,7 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
             </Animated.View>
           </View>
 
-          <TouchableOpacity onPress={onSettings} className="z-20 p-2">
+          <TouchableOpacity onPress={handleSettingsPress} className="z-20 p-2">
             <Image
               source={require('../assets/icons/settings.png')}
               className="h-6 w-6"

@@ -55,10 +55,6 @@ export default function ForumPage() {
     ]);
   };
 
-  const handleSettings = () => {
-    router.push(`/account/${user?.id}`);
-  };
-
   const handleSearch = async (query: string) => {
     setIsSearching(true);
     try {
@@ -125,7 +121,7 @@ export default function ForumPage() {
       title={profileData.author}
       subtitle={profileData.about}
       onLogout={handleLogout}
-      onSettings={handleSettings}
+      onSettings={user?.id}
       onSearch={handleSearch}>
       <ScrollView className="flex-1">
         <View className="flex gap-4 p-4">

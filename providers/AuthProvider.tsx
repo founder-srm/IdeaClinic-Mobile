@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Navigation protection
   useEffect(() => {
     const inAuthGroup = segments[0] === '(auth)';
-    const inProtectedGroup = segments[0] === '(forum)';
+    const inProtectedGroup = segments[0] === '(forum)' || segments[0] === '(settings)';
 
     console.log('[Navigation]', {
       segments,
