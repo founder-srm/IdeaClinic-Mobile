@@ -37,13 +37,11 @@
     "@supabase/supabase-js": "^2.38.4",
     "base64-arraybuffer": "^1.0.2",
     "class-variance-authority": "^0.7.1",
-    "cloudinary-react-native": "^1.0.1",
     "clsx": "^2.1.1",
     "expo": "~52.0.38",
     "expo-blur": "~14.0.3",
     "expo-constants": "~17.0.8",
     "expo-dev-client": "~5.0.13",
-    "expo-dev-launcher": "^5.0.17",
     "expo-image": "~2.0.6",
     "expo-image-picker": "~16.0.6",
     "expo-linking": "~7.0.5",
@@ -87,5 +85,29 @@
     "extends": "universe/native",
     "root": true
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": [
+          "@rn-primitives/alert-dialog",
+          "@rn-primitives/avatar",
+          "@rn-primitives/label",
+          "@rn-primitives/select",
+          "@rn-primitives/separator",
+          "@rn-primitives/slot",
+          "@rn-primitives/switch",
+          "@rn-primitives/tabs",
+          "@rn-primitives/types",
+          "@roninoss/icons",
+          "base64-arraybuffer",
+          "class-variance-authority",
+          "cloudinary-react-native",
+          "moment",
+          "react-native-uuid",
+          "tailwindcss"
+        ]
+      }
+    }
+  }
 }
