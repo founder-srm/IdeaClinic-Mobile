@@ -64,7 +64,6 @@ export default function SettingsPage() {
   React.useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (event) => {
       setKeyboardVisible(true);
-      const keyboardHeight = event.endCoordinates.height;
 
       // Only adjust scroll if we're actively editing a field
       if (editingField && activeInputY > 0) {
