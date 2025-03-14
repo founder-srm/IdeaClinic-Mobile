@@ -45,6 +45,8 @@ export default function Layout() {
   }, [loaded, error]);
 
   useEffect(() => {
+    NavigationBar.setBehaviorAsync('overlay-swipe');
+    NavigationBar.setButtonStyleAsync('dark');
     NavigationBar.setVisibilityAsync('hidden');
     return () => {
       NavigationBar.setVisibilityAsync('visible');
