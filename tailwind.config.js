@@ -25,6 +25,7 @@ module.exports = {
           DEFAULT: withOpacity('destructive'),
           foreground: withOpacity('destructive-foreground'),
         },
+        neutral: withOpacity('neutral'),
         muted: {
           DEFAULT: withOpacity('muted'),
           foreground: withOpacity('muted-foreground'),

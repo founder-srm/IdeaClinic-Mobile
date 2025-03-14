@@ -106,7 +106,7 @@ export default function ForumPage() {
 
   // Build profile data from both user and profile information
   const profileData = {
-    color: COLORS.dark.foreground,
+    color: COLORS.dark.neutral,
     image: profile?.avatar_url || 'https://via.placeholder.com/100',
     author: profile?.full_name || profile?.username || user?.id || 'User',
     about:

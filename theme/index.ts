@@ -12,6 +12,7 @@ const NAV_THEME = {
       // notification: COLORS.light.destructive,
       // primary: COLORS.light.primary,
       // text: COLORS.black,
+      neutral: COLORS.light.neutral,
       background: COLORS.dark.background,
       border: COLORS.dark.grey5,
       card: COLORS.dark.grey6,
@@ -23,6 +24,7 @@ const NAV_THEME = {
   dark: {
     ...DarkTheme,
     colors: {
+      neutral: COLORS.light.neutral,
       background: COLORS.dark.background,
       border: COLORS.dark.grey5,
       card: COLORS.dark.grey6,

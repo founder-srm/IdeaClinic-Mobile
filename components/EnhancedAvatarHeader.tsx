@@ -30,11 +30,10 @@ interface EnhancedAvatarHeaderProps {
 }
 
 export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
-  backgroundColor = '#4B9CD3',
+  backgroundColor,
   image,
   onSettings,
   title,
-  subtitle,
   onLogout,
   onSearch,
   children,
@@ -247,8 +246,10 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
           </TouchableOpacity>
         </View>
 
-        <Animated.View className="items-center p-4" style={{ opacity: imageOpacity }}>
-          <View className="flex w-full flex-row items-center gap-4">
+        <Animated.View
+          className="flex w-full flex-col items-center justify-center p-4"
+          style={{ opacity: imageOpacity }}>
+          <View className="flex w-full flex-col items-center justify-center gap-4">
             <Avatar alt="IdeaSpark Avatar" className="">
               <AvatarImage
                 source={{
@@ -259,24 +260,28 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
                 <Text className="text-foreground">{title}</Text>
               </AvatarFallback>
             </Avatar>
-            <Text className="ml-4 text-xl font-bold text-white">Hello {title}!</Text>
-            <Text className="text-sm text-white text-opacity-90">{subtitle}</Text>
+            <Text className="ml-4 text-xl font-bold text-[rgb(236,227,202)]">Hello {title}!</Text>
           </View>
         </Animated.View>
-
-        <View className="flex-row items-center justify-center">
-          <Button onPress={handlePress}>
-            <FontAwesome name="plus" size={12} color="white" />
-            <Text>Create Post</Text>
-          </Button>
-        </View>
 
         <View className="absolute bottom-0 left-0 right-0 flex-row items-center justify-center">
           <View className="h-1 w-10 rounded-full bg-white bg-opacity-50" />
         </View>
       </Animated.View>
 
-      <View className="-mt-5 flex-1 rounded-t-3xl bg-background">{children}</View>
+      <View className="-mt-5 flex-1 rounded-t-3xl bg-background">
+        {children}
+
+        {/* Floating action button */}
+        <View className="absolute bottom-6 left-6 z-50">
+          <Button
+            onPress={handlePress}
+            size="icon"
+            className="h-12 w-12 rounded-full bg-primary shadow-lg">
+            <FontAwesome name="plus" size={16} color="white" />
+          </Button>
+        </View>
+      </View>
 
       <StatusBar barStyle="light-content" backgroundColor={backgroundColor} translucent />
     </View>
