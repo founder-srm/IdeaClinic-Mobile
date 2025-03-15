@@ -2,14 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Animated, Image } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
 import { Button } from '~/components/nativewindui/Button';
-import IntroScreen from './IntroScreen';
+import StartScreen from './startScreen';
 
-const model1 = require('../assets/model1.png');
+const model3 = require('../assets/model3.png');
 
-export default function WelcomeScreen() {
+export default function LearnScreen() {
   const slideAnim = useRef(new Animated.Value(50)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const [showScreen2, setShowScreen2] = useState(false);
+  const [showScreen4, setShowScreen4] = useState(false);
 
   useEffect(() => {
     Animated.parallel([
@@ -26,8 +26,8 @@ export default function WelcomeScreen() {
     ]).start();
   }, []);
 
-  if (showScreen2) {
-    return <IntroScreen />;
+  if (showScreen4) {
+    return <StartScreen />;
   }
 
   return (
@@ -38,24 +38,24 @@ export default function WelcomeScreen() {
           opacity: fadeAnim,
         }}
         className="text-center text-[50px] font-semibold leading-[60px]">
-        Welcome
+        Learn and
       </Animated.Text>
 
       <Animated.Text
         style={{ opacity: fadeAnim }}
         className="mt-1 text-center text-[40px] font-semibold leading-[50px]">
-        to careerspace
+        practice
       </Animated.Text>
 
       <Animated.Image
-        source={model1}
+        source={model3}
         style={{ opacity: fadeAnim }}
         className="mt-5 h-[382px] w-[393px]"
       />
 
       <Button
         className="bottom-3 mt-5 h-[50px] w-[150px] rounded-full border-2 border-black bg-transparent"
-        onPress={() => setShowScreen2(true)}>
+        onPress={() => setShowScreen4(true)}>
         <Text className="font-bold text-black">Next</Text>
       </Button>
     </View>
