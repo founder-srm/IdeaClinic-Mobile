@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Animated, Image } from 'react-native';
+import { View, Platform, Animated, Image } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
 import { Button } from '~/components/nativewindui/Button';
-import IntroScreen from './IntroScreen';
+import LearnScreen from './LearnScreen';
 
-const model1 = require('../assets/model1.png');
+const model2 = require('../assets/model2.png');
 
-export default function WelcomeScreen() {
+export default function IntroScreen() {
   const slideAnim = useRef(new Animated.Value(50)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const [showScreen2, setShowScreen2] = useState(false);
+  const [showScreen3, setShowScreen3] = useState(false);
 
   useEffect(() => {
     Animated.parallel([
@@ -26,36 +26,36 @@ export default function WelcomeScreen() {
     ]).start();
   }, []);
 
-  if (showScreen2) {
-    return <IntroScreen />;
+  if (showScreen3) {
+    return <LearnScreen />;
   }
 
   return (
-    <View className="flex-1 items-center justify-center bg-[#DCC1FF]">
+    <View className="flex-1 items-center justify-center bg-[#F7CE45]">
       <Animated.Text
         style={{
           transform: [{ translateY: slideAnim }],
           opacity: fadeAnim,
         }}
         className="text-center text-[50px] font-semibold leading-[60px]">
-        Welcome
+        Get support in
       </Animated.Text>
 
       <Animated.Text
         style={{ opacity: fadeAnim }}
         className="mt-1 text-center text-[40px] font-semibold leading-[50px]">
-        to careerspace
+        your new career
       </Animated.Text>
 
       <Animated.Image
-        source={model1}
+        source={model2}
         style={{ opacity: fadeAnim }}
         className="mt-5 h-[382px] w-[393px]"
       />
 
       <Button
         className="bottom-3 mt-5 h-[50px] w-[150px] rounded-full border-2 border-black bg-transparent"
-        onPress={() => setShowScreen2(true)}>
+        onPress={() => setShowScreen3(true)}>
         <Text className="font-bold text-black">Next</Text>
       </Button>
     </View>
