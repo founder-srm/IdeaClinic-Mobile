@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Animated, Image } from 'react-native';
+import { View, Animated } from 'react-native';
 
 import IntroScreen from './IntroScreen';
 
