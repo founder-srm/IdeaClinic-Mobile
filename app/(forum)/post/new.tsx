@@ -8,6 +8,7 @@ import {
   ToastAndroid,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
 } from 'react-native';
 import uuid from 'react-native-uuid';
 
@@ -16,7 +17,6 @@ import CloudinaryUploader from '~/components/cloudinary/CloudinaryUploader';
 import { Picker, PickerItem } from '~/components/nativewindui/Picker';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
-import { Separator } from '~/components/ui/separator';
 import { Textarea } from '~/components/ui/textarea';
 import { useUser } from '~/hooks/useUser';
 import { useKeyboard } from '~/lib/useKeyboard';
@@ -153,36 +153,44 @@ export default function PostCreationPage() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
-        className="flex-1">
+        className="flex-1"
+      >
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             flexGrow: 1,
             paddingBottom: isKeyboardVisible ? keyboardHeight / 2 : 0,
           }}
-          keyboardShouldPersistTaps="handled">
+          keyboardShouldPersistTaps="handled"
+        >
           <View className="space-y-6 p-4">
-            <View>
-              <Text className="mb-6 text-xl font-bold">Create New Post</Text>
+            {/* Header */}
+            <View className="mb-6">
+              <Text className="text-3xl font-bold text-primary">Create Post</Text>
+              <Text className="mt-1 text-sm text-gray-500">Share your thoughts with the community</Text>
+            </View>
 
+            <View className="overflow-hidden rounded-xl bg-card p-6 shadow-sm">
               {/* Title Input */}
-              <View className="mb-4">
-                <Text className="mb-1.5 text-sm font-medium text-gray-700">Title</Text>
+              <View className="mb-6">
+                <Text className="mb-2 text-sm font-semibold text-gray-700">Title</Text>
                 <Input
                   placeholder="Add a descriptive title"
                   value={title}
                   onChangeText={setTitle}
+                  className="border-gray-200 bg-white/50 px-4 py-3 text-base"
                 />
               </View>
 
               {/* Tag Selector */}
-              <View className="mb-4">
-                <Text className="mb-1.5 text-sm font-medium text-gray-700">Category</Text>
-                <View className="overflow-hidden rounded-md border border-gray-300">
+              <View className="mb-6">
+                <Text className="mb-2 text-sm font-semibold text-gray-700">Category</Text>
+                <View className="overflow-hidden rounded-lg border border-gray-200 bg-white/50">
                   <Picker
                     selectedValue={selectedTag}
                     onValueChange={handleTagChange}
-                    style={{ height: 50, width: '100%' }}>
+                    style={{ height: 50, width: '100%' }}
+                  >
                     <PickerItem label="Select a category" value="" />
                     {tags.map((tag) => (
                       <PickerItem
@@ -195,60 +203,73 @@ export default function PostCreationPage() {
                   </Picker>
                 </View>
                 {selectedTag && (
-                  <View className="mt-2 flex-row items-center">
-                    <Text className="text-sm">Selected: </Text>
+                  <View className="mt-3 flex-row items-center rounded-full bg-gray-100 px-3 py-1.5">
                     <View
                       style={{ backgroundColor: labelColor }}
-                      className="ml-1 mr-1 h-3 w-3 rounded-full"
+                      className="mr-2 h-4 w-4 rounded-full"
                     />
-                    <Text className="text-sm font-medium">{selectedTag}</Text>
+                    <Text className="text-sm font-medium text-gray-700">{selectedTag}</Text>
                   </View>
                 )}
               </View>
-              <Separator className="my-2" />
 
               {/* Content Input */}
-              <View className="mb-4">
-                <Text className="mb-1.5 text-sm font-medium text-gray-700">Content</Text>
+              <View className="mb-6">
+                <Text className="mb-2 text-sm font-semibold text-gray-700">Content</Text>
                 <Textarea
                   placeholder="Share your thoughts, ideas, or questions..."
                   value={content}
                   onChangeText={setContent}
                   numberOfLines={10}
-                  className="min-h-[160px]"
+                  className="min-h-[180px] border-gray-200 bg-white/50 px-4 py-3 text-base"
                 />
               </View>
-              <Separator className="my-2" />
 
               {/* Cloudinary Image Upload */}
               <View className="mb-6">
-                <Text className="mb-1.5 text-sm font-medium text-gray-700">Banner Image</Text>
-                <CloudinaryUploader
-                  onImageSelected={handleImageSelected}
-                  onImageUploaded={handleImageUploaded}
-                  onImageRemoved={handleImageRemoved}
-                  cloudName={CLOUDINARY_CLOUD_NAME}
-                  uploadPreset={CLOUDINARY_UPLOAD_PRESET}
-                />
-                {cloudinaryUrl && (
-                  <Text className="mt-1 text-xs text-green-600">✓ Uploaded to cloud</Text>
-                )}
+                <Text className="mb-2 text-sm font-semibold text-gray-700">Banner Image</Text>
+                <View className="rounded-lg border border-dashed border-gray-300 bg-white/50 p-4">
+                  <CloudinaryUploader
+                    onImageSelected={handleImageSelected}
+                    onImageUploaded={handleImageUploaded}
+                    onImageRemoved={handleImageRemoved}
+                    cloudName={CLOUDINARY_CLOUD_NAME}
+                    uploadPreset={CLOUDINARY_UPLOAD_PRESET}
+                  />
+                  {cloudinaryUrl && (
+                    <View className="mt-2 flex-row items-center">
+                      <View className="mr-2 h-5 w-5 items-center justify-center rounded-full bg-green-100">
+                        <Text className="text-green-600">✓</Text>
+                      </View>
+                      <Text className="text-xs text-green-600">Successfully uploaded to cloud</Text>
+                    </View>
+                  )}
+                </View>
               </View>
 
               {/* Submit Button */}
               <Button
                 onPress={makePost}
                 disabled={updating || !title}
-                className={`mt-4 w-full ${isKeyboardVisible ? 'mb-4' : ''}`}>
+                className={`mt-4 w-full rounded-lg py-3.5 shadow-sm ${updating ? 'opacity-70' : ''}`}
+              >
                 {updating ? (
-                  <View className="flex-row items-center">
+                  <View className="flex-row items-center justify-center">
                     <ActivityIndicator size="small" color="#fff" />
-                    <Text className="ml-2 font-medium text-white">Creating post...</Text>
+                    <Text className="ml-2 text-base font-medium text-white">Creating post...</Text>
                   </View>
                 ) : (
-                  <Text className="font-medium text-white">Create Post</Text>
+                  <Text className="text-base font-medium text-white">Publish Post</Text>
                 )}
               </Button>
+
+              {/* Cancel Button */}
+              <Pressable
+                onPress={() => router.push('/forum')}
+                className="mt-3 items-center justify-center py-2"
+              >
+                <Text className="text-sm font-medium text-gray-500">Cancel</Text>
+              </Pressable>
             </View>
           </View>
         </ScrollView>
