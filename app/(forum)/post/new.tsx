@@ -153,21 +153,21 @@ export default function PostCreationPage() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
-        className="flex-1"
-      >
+        className="flex-1">
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             flexGrow: 1,
             paddingBottom: isKeyboardVisible ? keyboardHeight / 2 : 0,
           }}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View className="space-y-6 p-4">
+          keyboardShouldPersistTaps="handled">
+          <View className="mt-12 space-y-6 p-4">
             {/* Header */}
             <View className="mb-6">
               <Text className="text-3xl font-bold text-primary">Create Post</Text>
-              <Text className="mt-1 text-sm text-gray-500">Share your thoughts with the community</Text>
+              <Text className="mt-1 text-sm text-gray-500">
+                Share your thoughts with the community
+              </Text>
             </View>
 
             <View className="overflow-hidden rounded-xl bg-card p-6 shadow-sm">
@@ -189,8 +189,7 @@ export default function PostCreationPage() {
                   <Picker
                     selectedValue={selectedTag}
                     onValueChange={handleTagChange}
-                    style={{ height: 50, width: '100%' }}
-                  >
+                    style={{ height: 50, width: '100%' }}>
                     <PickerItem label="Select a category" value="" />
                     {tags.map((tag) => (
                       <PickerItem
@@ -251,8 +250,7 @@ export default function PostCreationPage() {
               <Button
                 onPress={makePost}
                 disabled={updating || !title}
-                className={`mt-4 w-full rounded-lg py-3.5 shadow-sm ${updating ? 'opacity-70' : ''}`}
-              >
+                className={`mt-4 w-full rounded-lg py-3.5 shadow-sm ${updating ? 'opacity-70' : ''}`}>
                 {updating ? (
                   <View className="flex-row items-center justify-center">
                     <ActivityIndicator size="small" color="#fff" />
@@ -266,8 +264,7 @@ export default function PostCreationPage() {
               {/* Cancel Button */}
               <Pressable
                 onPress={() => router.push('/forum')}
-                className="mt-3 items-center justify-center py-2"
-              >
+                className="mt-3 items-center justify-center py-2">
                 <Text className="text-sm font-medium text-gray-500">Cancel</Text>
               </Pressable>
             </View>

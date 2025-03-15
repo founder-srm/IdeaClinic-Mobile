@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Animated, Image } from 'react-native';
-import { Text } from '~/components/nativewindui/Text';
-import { Button } from '~/components/nativewindui/Button';
+
 import IntroScreen from './IntroScreen';
+
+import { Button } from '~/components/nativewindui/Button';
+import { Text } from '~/components/nativewindui/Text';
 
 const model1 = require('../assets/model1.png');
 

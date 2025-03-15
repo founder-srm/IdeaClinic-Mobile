@@ -1,5 +1,7 @@
 'use client';
 
+import { AntDesign, FontAwesome } from '@expo/vector-icons';
+import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState, useRef } from 'react';
 import {
@@ -22,14 +24,12 @@ import Animated, {
   interpolate,
   useSharedValue,
 } from 'react-native-reanimated';
-import { FlashList } from '@shopify/flash-list';
-import { AntDesign, FontAwesome } from '@expo/vector-icons';
 
 import { Container } from '~/components/Container';
 import { Separator } from '~/components/ui/separator';
 import { useUser } from '~/hooks/useUser';
-import { supabase } from '~/utils/supabase';
 import { COLORS } from '~/theme/colors';
+import { supabase } from '~/utils/supabase';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -197,7 +197,7 @@ export default function PostPage() {
 
       if (data) {
         setComments((prev) => [data, ...prev]);
-        setCommentCount(prev => prev + 1);
+        setCommentCount((prev) => prev + 1);
         setNewComment('');
         inputRef.current?.blur();
       }
@@ -408,7 +408,7 @@ export default function PostPage() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1">
-        <View className="flex-1">
+        <View className="mt-12 flex-1">
           <ScrollView className="flex-1" showsVerticalScrollIndicator={false} bounces={false}>
             <View className="p-4">
               {/* Banner Image */}
@@ -612,7 +612,7 @@ export default function PostPage() {
                     onChangeText={setNewComment}
                     placeholder="Write a comment..."
                     className="mb-2 rounded-lg bg-gray-100 p-3 text-gray-800"
-                    multiline={true}
+                    multiline
                     maxLength={500}
                   />
                   <Pressable
@@ -634,4 +634,3 @@ export default function PostPage() {
     </Container>
   );
 }
-

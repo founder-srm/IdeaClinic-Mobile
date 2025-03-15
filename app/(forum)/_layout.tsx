@@ -34,6 +34,10 @@ export default function PostsProtectedLayout() {
           presentation: 'modal',
           animation: 'slide_from_right',
           headerTitle: 'Post Details',
+          headerTransparent: true,
+          headerBlurEffect: 'dark',
+          headerTintColor: 'black',
+          headerBackVisible: true,
         }}
       />
       <Stack.Screen
@@ -43,6 +47,10 @@ export default function PostsProtectedLayout() {
           presentation: 'modal',
           animation: 'slide_from_right',
           headerTitle: 'New Post',
+          headerTransparent: true,
+          headerBlurEffect: 'dark',
+          headerTintColor: 'black',
+          headerBackVisible: true,
         }}
       />
       <Stack.Screen
@@ -52,6 +60,10 @@ export default function PostsProtectedLayout() {
           presentation: 'modal',
           animation: 'slide_from_left',
           headerTitle: 'Account Profile',
+          headerTransparent: true,
+          headerBlurEffect: 'dark',
+          headerTintColor: 'black',
+          headerBackVisible: true,
         }}
       />
     </Stack>
