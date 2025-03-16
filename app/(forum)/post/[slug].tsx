@@ -1,5 +1,3 @@
-'use client';
-
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -209,49 +207,131 @@ export default function PostPage() {
     }
   };
 
-  const renderComment = ({ item: comment }: { item: Comment }) => (
-    <Animated.View
-      entering={FadeInDown.duration(400)}
-      className="mb-3 rounded-lg bg-white p-3 shadow-sm">
-      <View className="flex-row items-center">
-        <View className="h-8 w-8 overflow-hidden rounded-full bg-gray-100">
-          {comment.creator?.avatar_url ? (
-            <Image
-              source={{ uri: comment.creator.avatar_url }}
-              className="h-full w-full"
-              resizeMode="cover"
+
+  <AnimatedPressable
+    onPress={handleLike}
+    disabled={updating || !userId}
+    className={`flex-row items-center justify-center rounded-xl px-3 py-3 shadow-lg ${
+      isLiked ? 'bg-[#e8d7c1]' : 'bg-[#dfcfbd]'
+    }`}
+    style={{
+      elevation: 3,
+      shadowColor: '#5c4d3d',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 3,
+    }}>
+    <AntDesign
+      name={isLiked ? 'heart' : 'hearto'}
+      size={24}
+      color={isLiked ? '#d16969' : '#8b7355'}
+    />
+    <Text className="ml-2 text-sm font-medium text-[#5c4d3d]">
+      {likeCount} {likeCount === 1 ? 'Like' : 'Likes'}
+    </Text>
+  </AnimatedPressable>;
+
+  // Now, let's add the comment liking functionality
+  // First, add a new function to handle comment likes
+
+  const handleCommentLike = async (comment: Comment) => {
+    if (!userId) return;
+
+    try {
+      // Get current likes for this comment
+      const isLiked = comment.likes?.includes(userId) || false;
+      const currentLikes = comment.likes || [];
+
+      // Update likes array - add or remove user ID
+      let newLikes;
+      if (isLiked) {
+        newLikes = currentLikes.filter((id) => id !== userId);
+      } else {
+        newLikes = [...currentLikes, userId];
+      }
+
+      // Filter out any undefined values
+      newLikes = newLikes.filter((id): id is string => id !== undefined);
+
+      // Update the comment in the database
+      const { error } = await supabase
+        .from('comments')
+        .update({ likes: newLikes })
+        .eq('id', comment.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setComments(comments.map((c) => (c.id === comment.id ? { ...c, likes: newLikes } : c)));
+    } catch (err) {
+      console.error('Error updating comment like:', err);
+      ToastAndroid.show('Failed to update like', ToastAndroid.SHORT);
+    }
+  };
+
+  const renderComment = ({ item: comment }: { item: Comment }) => {
+    const isCommentLiked = userId ? comment.likes?.includes(userId) || false : false;
+
+    return (
+      <Animated.View
+        entering={FadeInDown.duration(400)}
+        className="mb-3 rounded-lg bg-white p-3 shadow-sm">
+        <View className="flex-row items-center">
+          <View className="h-8 w-8 overflow-hidden rounded-full bg-gray-100">
+            {comment.creator?.avatar_url ? (
+              <Image
+                source={{ uri: comment.creator.avatar_url }}
+                className="h-full w-full"
+                resizeMode="cover"
+              />
+            ) : (
+              <View className="h-full w-full items-center justify-center">
+                <Text className="text-lg font-bold text-gray-700">
+                  {comment.creator?.username?.[0]?.toUpperCase() || 'U'}
+                </Text>
+              </View>
+            )}
+          </View>
+          <View className="ml-2 flex-1">
+            <Text className="font-medium text-gray-800">
+              {comment.creator?.full_name || comment.creator?.username || 'Anonymous'}
+            </Text>
+            <Text className="text-xs text-gray-500">
+              {new Date(comment.created_at).toLocaleDateString(undefined, {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })}
+            </Text>
+          </View>
+        </View>
+        <Text className="mt-2 text-gray-700">{comment.content}</Text>
+        <View className="mt-2 flex-row items-center">
+          <Pressable
+            onPress={() => handleCommentLike(comment)}
+            disabled={!userId}
+            className="mr-3 flex-row items-center">
+            <AntDesign
+              name={isCommentLiked ? 'heart' : 'hearto'}
+              size={16}
+              color={isCommentLiked ? '#d16969' : '#8b7355'}
             />
-          ) : (
-            <View className="h-full w-full items-center justify-center">
-              <Text className="text-lg font-bold text-gray-700">
-                {comment.creator?.username?.[0]?.toUpperCase() || 'U'}
-              </Text>
-            </View>
-          )}
+            <Text className="ml-1 text-xs text-gray-500">{comment.likes?.length || 0}</Text>
+          </Pressable>
+          {/* {userId === comment.creatorid && (
+            <Pressable className="flex-row items-center">
+              <AntDesign name="edit" size={16} color="#8b7355" />
+              <Text className="ml-1 text-xs text-gray-500">Edit</Text>
+            </Pressable>
+          )} */}
         </View>
-        <View className="ml-2 flex-1">
-          <Text className="font-medium text-gray-800">
-            {comment.creator?.full_name || comment.creator?.username || 'Anonymous'}
-          </Text>
-          <Text className="text-xs text-gray-500">
-            {new Date(comment.created_at).toLocaleDateString(undefined, {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            })}
-          </Text>
-        </View>
-      </View>
-      <Text className="mt-2 text-gray-700">{comment.content}</Text>
-      <View className="mt-2 flex-row items-center">
-        <Text className="text-sm text-gray-500">{comment.likes?.length || 0} likes</Text>
-      </View>
-    </Animated.View>
-  );
+      </Animated.View>
+    );
+  };
 
   const navigateToUserProfile = () => {
     if (post?.creator_id) {
-      // router.push(`/profile/${post.creator_id}`);
+      router.push(`/account/${post.creator_id}`);
     }
   };
 
@@ -261,7 +341,6 @@ export default function PostPage() {
 
     return parts.map((part, index) => {
       if (part.startsWith('```') && part.endsWith('```')) {
-        // Remove the backticks and get the code
         const code = part.slice(3, -3);
         return (
           <View key={index} className="my-4 rounded-lg bg-[#2d2d2d] p-4">
@@ -408,7 +487,7 @@ export default function PostPage() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1">
-        <View className="mt-12 flex-1">
+        <View className="mt-[5rem] flex-1">
           <ScrollView className="flex-1" showsVerticalScrollIndicator={false} bounces={false}>
             <View className="p-4">
               {/* Banner Image */}
@@ -500,11 +579,12 @@ export default function PostPage() {
 
               {/* Engagement Actions */}
               <Animated.View entering={FadeInDown.duration(600).delay(800)} className="mb-6">
-                <View className="flex-row justify-evenly gap-3 space-x-5">
+                <View className="flex-row flex-wrap justify-center gap-2">
+                  {/* Like button */}
                   <AnimatedPressable
                     onPress={handleLike}
                     disabled={updating || !userId}
-                    className={`flex-row items-center justify-center rounded-xl px-4 py-3.5 shadow-lg ${
+                    className={`flex-row items-center justify-center rounded-xl px-3 py-3 shadow-lg ${
                       isLiked ? 'bg-[#e8d7c1]' : 'bg-[#dfcfbd]'
                     }`}
                     style={{
@@ -516,7 +596,7 @@ export default function PostPage() {
                     }}>
                     <AntDesign
                       name={isLiked ? 'heart' : 'hearto'}
-                      size={26}
+                      size={24}
                       color={isLiked ? '#d16969' : '#8b7355'}
                     />
                     <Text className="ml-2 text-sm font-medium text-[#5c4d3d]">
@@ -524,9 +604,10 @@ export default function PostPage() {
                     </Text>
                   </AnimatedPressable>
 
+                  {/* Comments button */}
                   <AnimatedPressable
                     onPress={toggleComments}
-                    className="flex-row items-center justify-center rounded-xl bg-[#dfcfbd] px-4 py-3.5 shadow-lg"
+                    className="flex-row items-center justify-center rounded-xl bg-[#dfcfbd] px-3 py-3 shadow-lg"
                     style={{
                       elevation: 3,
                       shadowColor: '#5c4d3d',
@@ -534,14 +615,15 @@ export default function PostPage() {
                       shadowOpacity: 0.2,
                       shadowRadius: 3,
                     }}>
-                    <FontAwesome name="comments" size={26} color="#8b7355" />
+                    <FontAwesome name="comments" size={24} color="#8b7355" />
                     <Text className="ml-2 text-sm font-medium text-[#5c4d3d]">
                       {commentCount} {commentCount === 1 ? 'Comment' : 'Comments'}
                     </Text>
                   </AnimatedPressable>
 
+                  {/* Share button */}
                   <AnimatedPressable
-                    className="flex-row items-center justify-center rounded-xl bg-[#dfcfbd] px-4 py-3.5 shadow-lg"
+                    className="flex-row items-center justify-center rounded-xl bg-[#dfcfbd] px-3 py-3 shadow-lg"
                     style={{
                       elevation: 3,
                       shadowColor: '#5c4d3d',
@@ -549,14 +631,13 @@ export default function PostPage() {
                       shadowOpacity: 0.2,
                       shadowRadius: 3,
                     }}>
-                    <AntDesign name="sharealt" size={26} color="#8b7355" />
+                    <AntDesign name="sharealt" size={24} color="#8b7355" />
                     <Text className="ml-2 text-sm font-medium text-[#5c4d3d]">Share</Text>
                   </AnimatedPressable>
                 </View>
               </Animated.View>
             </View>
           </ScrollView>
-
           {/* Comments Section - Make sure it completely covers the screen when shown */}
           {showComments && (
             <Animated.View
@@ -634,3 +715,4 @@ export default function PostPage() {
     </Container>
   );
 }
+
