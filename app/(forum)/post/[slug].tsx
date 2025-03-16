@@ -1,7 +1,8 @@
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,27 +14,20 @@ import {
   Platform,
   TextInput,
   Pressable,
-  Dimensions,
   Linking,
   Share,
 } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  withSpring,
-  FadeInDown,
-  interpolate,
-  useSharedValue,
-} from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Container } from '~/components/Container';
 import { Button } from '~/components/nativewindui/Button';
+import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { Separator } from '~/components/ui/separator';
 import { useUser } from '~/hooks/useUser';
 import { cn } from '~/lib/cn';
 import { COLORS } from '~/theme/colors';
 import { supabase } from '~/utils/supabase';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 interface Post {
@@ -89,57 +83,47 @@ export default function PostPage() {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [commenting, setCommenting] = useState(false);
+  const [hasMoreComments, setHasMoreComments] = useState(true);
 
-  // Animation values
-  const commentsHeight = useSharedValue(0);
+  // Replace the commentsHeight and animatedCommentsStyle with Sheet ref
+  const commentsSheetRef = useSheetRef();
+  const postIdRef = useRef<string | null>(null);
 
-  const animatedCommentsStyle = useAnimatedStyle(() => ({
-    height: interpolate(commentsHeight.value, [0, 1], [0, SCREEN_HEIGHT * 0.7]),
-    opacity: commentsHeight.value,
-  }));
-
-  const toggleComments = () => {
+  // Update the toggleComments function to use the Sheet
+  const toggleComments = useCallback(() => {
     if (showComments) {
-      commentsHeight.value = withSpring(0);
-      setTimeout(() => setShowComments(false), 300);
+      commentsSheetRef.current?.dismiss();
+      setShowComments(false);
     } else {
+      commentsSheetRef.current?.present();
       setShowComments(true);
-      commentsHeight.value = withSpring(1);
-      // Fetch comments when opening the comments section
-      if (comments.length === 0 && !loadingComments) {
-        fetchComments();
-      }
+      // No need to fetch comments here as they're already loaded with the post
     }
-  };
+  }, [showComments]);
 
-  const fetchCommentCount = async () => {
-    if (!post?.id) return;
-
-    try {
-      const { count, error } = await supabase
-        .from('comments')
-        .select('*', { count: 'exact', head: true })
-        .eq('postid', post.id);
-
-      if (error) throw error;
-
-      if (count !== null) {
-        setCommentCount(count);
-      }
-    } catch (err) {
-      console.error('Error fetching comment count:', err);
+  // Handle sheet changes callback
+  const handleSheetChanges = useCallback((index: number) => {
+    if (index === -1) {
+      setShowComments(false);
     }
-  };
+  }, []);
 
-  const fetchComments = async (lastCommentId?: string) => {
-    if (!post?.id) {
-      console.error('Post ID is not available');
-      return;
-    }
+  // Fetch more comments for pagination
+  const fetchMoreComments = useCallback(async () => {
+    if (!postIdRef.current || loadingComments || !hasMoreComments) return;
 
     try {
       setLoadingComments(true);
-      let query = supabase
+
+      // Get the last comment's ID for pagination
+      const lastCommentId = comments.length > 0 ? comments[comments.length - 1].id : undefined;
+
+      if (!lastCommentId) {
+        setLoadingComments(false);
+        return;
+      }
+
+      const { data, error: commentsError } = await supabase
         .from('comments')
         .select(
           `
@@ -147,35 +131,29 @@ export default function PostPage() {
           creator:profiles(username, avatar_url, full_name)
         `
         )
-        .eq('postid', post.id)
+        .eq('postid', postIdRef.current)
         .order('created_at', { ascending: false })
+        .lt('id', lastCommentId)
         .limit(20);
-
-      if (lastCommentId) {
-        query = query.lt('id', lastCommentId);
-      }
-
-      const { data, error: commentsError } = await query;
 
       if (commentsError) throw commentsError;
 
-      if (data) {
-        setComments((prev) => (lastCommentId ? [...prev, ...data] : data));
-        setComments((prev) => {
-          setCommentCount(lastCommentId ? prev.length + data.length : data.length);
-          return lastCommentId ? [...prev, ...data] : data;
-        });
+      if (data && data.length > 0) {
+        setComments((prev) => [...prev, ...data]);
+      } else {
+        // No more comments to load
+        setHasMoreComments(false);
       }
     } catch (err) {
-      console.error('Error fetching comments:', err);
-      ToastAndroid.show('Failed to load comments', ToastAndroid.SHORT);
+      console.error('Error fetching more comments:', err);
+      ToastAndroid.show('Failed to load more comments', ToastAndroid.SHORT);
     } finally {
       setLoadingComments(false);
     }
-  };
+  }, [comments, loadingComments, hasMoreComments]);
 
-  const submitComment = async () => {
-    if (!userId || !post?.id || !newComment.trim() || commenting) return;
+  const submitComment = useCallback(async () => {
+    if (!userId || !postIdRef.current || !newComment.trim() || commenting) return;
 
     setCommenting(true);
     try {
@@ -183,7 +161,7 @@ export default function PostPage() {
         .from('comments')
         .insert({
           content: newComment.trim(),
-          postid: post.id,
+          postid: postIdRef.current,
           creatorid: userId,
           likes: [],
         })
@@ -209,45 +187,47 @@ export default function PostPage() {
     } finally {
       setCommenting(false);
     }
-  };
+  }, [userId, newComment, commenting]);
 
-  // Now, let's add the comment liking functionality
-  // First, add a new function to handle comment likes
+  const handleCommentLike = useCallback(
+    async (comment: Comment) => {
+      if (!userId) return;
 
-  const handleCommentLike = async (comment: Comment) => {
-    if (!userId) return;
+      try {
+        // Get current likes for this comment
+        const isLiked = comment.likes?.includes(userId) || false;
+        const currentLikes = comment.likes || [];
 
-    try {
-      // Get current likes for this comment
-      const isLiked = comment.likes?.includes(userId) || false;
-      const currentLikes = comment.likes || [];
+        // Update likes array - add or remove user ID
+        let newLikes;
+        if (isLiked) {
+          newLikes = currentLikes.filter((id) => id !== userId);
+        } else {
+          newLikes = [...currentLikes, userId];
+        }
 
-      // Update likes array - add or remove user ID
-      let newLikes;
-      if (isLiked) {
-        newLikes = currentLikes.filter((id) => id !== userId);
-      } else {
-        newLikes = [...currentLikes, userId];
+        // Filter out any undefined values
+        newLikes = newLikes.filter((id): id is string => id !== undefined);
+
+        // Update the comment in the database
+        const { error } = await supabase
+          .from('comments')
+          .update({ likes: newLikes })
+          .eq('id', comment.id);
+
+        if (error) throw error;
+
+        // Update local state
+        setComments((prev) =>
+          prev.map((c) => (c.id === comment.id ? { ...c, likes: newLikes } : c))
+        );
+      } catch (err) {
+        console.error('Error updating comment like:', err);
+        ToastAndroid.show('Failed to update like', ToastAndroid.SHORT);
       }
-
-      // Filter out any undefined values
-      newLikes = newLikes.filter((id): id is string => id !== undefined);
-
-      // Update the comment in the database
-      const { error } = await supabase
-        .from('comments')
-        .update({ likes: newLikes })
-        .eq('id', comment.id);
-
-      if (error) throw error;
-
-      // Update local state
-      setComments(comments.map((c) => (c.id === comment.id ? { ...c, likes: newLikes } : c)));
-    } catch (err) {
-      console.error('Error updating comment like:', err);
-      ToastAndroid.show('Failed to update like', ToastAndroid.SHORT);
-    }
-  };
+    },
+    [userId]
+  );
 
   const renderComment = ({ item: comment }: { item: Comment }) => {
     const isCommentLiked = userId ? comment.likes?.includes(userId) || false : false;
@@ -255,9 +235,9 @@ export default function PostPage() {
     return (
       <Animated.View
         entering={FadeInDown.duration(400)}
-        className="mb-3 rounded-lg bg-white p-3 shadow-sm">
+        className="mb-3 rounded-lg bg-card p-3 shadow-sm">
         <View className="flex-row items-center">
-          <View className="h-8 w-8 overflow-hidden rounded-full bg-gray-100">
+          <View className="h-8 w-8 overflow-hidden rounded-full bg-card-foreground">
             {comment.creator?.avatar_url ? (
               <Image
                 source={{ uri: comment.creator.avatar_url }}
@@ -510,9 +490,11 @@ export default function PostPage() {
   };
 
   useEffect(() => {
-    async function fetchPostData() {
+    async function fetchPostAndComments() {
       // Clear previous state
       setError(null);
+      setComments([]);
+      setHasMoreComments(true);
 
       if (!slug) {
         setError('Missing post identifier');
@@ -521,24 +503,57 @@ export default function PostPage() {
       }
 
       const postId = Array.isArray(slug) ? slug[0] : slug;
+      postIdRef.current = postId; // Store the post ID in the ref for access in callbacks
 
       try {
-        const { data: postData, error: postError } = await supabase
-          .from('posts')
-          .select('*')
-          .eq('id', postId)
-          .single();
+        // Start both post and comments fetching simultaneously
+        const [postResult, commentsResult] = await Promise.all([
+          supabase.from('posts').select('*').eq('id', postId).single(),
+          supabase
+            .from('comments')
+            .select(
+              `
+            *,
+            creator:profiles(username, avatar_url, full_name)
+          `
+            )
+            .eq('postid', postId)
+            .order('created_at', { ascending: false })
+            .limit(20),
+        ]);
+
+        const { data: postData, error: postError } = postResult;
+        const { data: commentsData, error: commentsError } = commentsResult;
 
         if (postError) throw postError;
+
+        if (commentsError) {
+          console.error('Error fetching comments:', commentsError);
+          // Continue with post data even if comments fail
+        } else if (commentsData) {
+          setComments(commentsData);
+          setCommentCount(commentsData.length);
+        }
 
         if (postData) {
           setPost(postData as Post);
           setLikeCount(postData.likes?.length || 0);
           setIsLiked(userId ? postData.likes?.includes(userId) || false : false);
 
-          // Fetch comment count once we have the post
-          if (postData.id) {
-            fetchCommentCount();
+          // Also fetch comment count to ensure we have the total
+          try {
+            const { count, error } = await supabase
+              .from('comments')
+              .select('*', { count: 'exact', head: true })
+              .eq('postid', postId);
+
+            if (!error && count !== null) {
+              setCommentCount(count);
+              // If count is higher than loaded comments, we know there are more
+              setHasMoreComments(count > (commentsData?.length || 0));
+            }
+          } catch (countErr) {
+            console.error('Error fetching comment count:', countErr);
           }
 
           if (postData.creator_id) {
@@ -558,7 +573,7 @@ export default function PostPage() {
           setError('Post not found');
         }
       } catch (err: any) {
-        console.error('Error fetching post:', err);
+        console.error('Error fetching post details:', err);
         setError(err.message || 'Failed to load post details');
         ToastAndroid.show('Failed to load post details', ToastAndroid.LONG);
       } finally {
@@ -566,7 +581,7 @@ export default function PostPage() {
       }
     }
 
-    fetchPostData();
+    fetchPostAndComments();
   }, [slug, userId]);
 
   async function handleLike() {
@@ -770,81 +785,84 @@ export default function PostPage() {
                 </Animated.View>
               </View>
             </ScrollView>
-            {/* Comments Section - Make sure it completely covers the screen when shown */}
-            {showComments && (
-              <Animated.View
-                style={[animatedCommentsStyle]}
-                className="absolute bottom-0 left-0 right-0 border border-gray-200 bg-white shadow-lg">
-                <View className="border-b border-gray-200 bg-white px-4 py-3">
-                  <View className="flex-row items-center justify-between">
-                    <Text className="text-lg font-semibold text-gray-800">Comments</Text>
-                    <Pressable onPress={toggleComments} className="rounded-full bg-gray-100 p-2">
-                      <AntDesign name="close" size={20} color="#8b7355" />
-                    </Pressable>
-                  </View>
-                </View>
 
-                <View className="flex-1 bg-gray-50 px-4">
-                  <FlashList
-                    data={comments}
-                    renderItem={renderComment}
-                    estimatedItemSize={100}
-                    onEndReached={() => {
-                      if (comments.length > 0 && !loadingComments) {
-                        fetchComments(comments[comments.length - 1].id);
-                      }
-                    }}
-                    onEndReachedThreshold={0.5}
-                    ListEmptyComponent={
-                      loadingComments ? (
-                        <View className="items-center py-8">
-                          <ActivityIndicator size="small" color="#8b7355" />
-                        </View>
-                      ) : (
-                        <View className="mt-6 items-center py-8">
-                          <Text className="text-base text-gray-600">No comments yet</Text>
-                          <Text className="mt-2 text-center text-gray-500">
-                            Be the first to share your thoughts!
-                          </Text>
-                        </View>
-                      )
-                    }
-                    ListFooterComponent={
-                      loadingComments && comments.length > 0 ? (
-                        <View className="items-center py-4">
-                          <ActivityIndicator size="small" color="#8b7355" />
-                        </View>
-                      ) : null
-                    }
-                  />
-
-                  <View className="shadow-inner border-t border-gray-200 bg-white p-3">
-                    <TextInput
-                      ref={inputRef}
-                      value={newComment}
-                      onChangeText={setNewComment}
-                      placeholder="Write a comment..."
-                      className="mb-2 rounded-lg bg-gray-100 p-3 text-gray-800"
-                      multiline
-                      maxLength={500}
-                    />
-                    <Pressable
-                      onPress={submitComment}
-                      disabled={commenting || !newComment.trim() || !userId}
-                      className={`items-center justify-center rounded-lg bg-[#dfcfbd] p-3 ${
-                        commenting || !newComment.trim() || !userId ? 'opacity-50' : ''
-                      }`}>
-                      <Text className="text-center font-medium text-[#5c4d3d]">
-                        {commenting ? 'Posting...' : 'Post Comment'}
-                      </Text>
-                    </Pressable>
-                  </View>
-                </View>
-              </Animated.View>
-            )}
+            {/* Comments Sheet - Replace the previous animated view */}
           </View>
         </KeyboardAvoidingView>
       </Container>
+      <Sheet
+        ref={commentsSheetRef}
+        onChange={handleSheetChanges}
+        snapPoints={['70%']}
+        enablePanDownToClose
+        index={-1}>
+        <BottomSheetScrollView style={{ flex: 1 }}>
+          <View className="border-b border-accent bg-card p-4">
+            <View className="flex-row items-center justify-between">
+              <Text className="text-lg font-semibold text-[#5c4d3d]">
+                Comments ({commentCount})
+              </Text>
+              <Pressable onPress={toggleComments} className="rounded-full bg-[#dfcfbd]/30 p-2">
+                <AntDesign name="close" size={20} color="#8b7355" />
+              </Pressable>
+            </View>
+          </View>
+
+          <View className="flex-1 bg-[#f9f5f0]/50 px-4 pb-4 pt-2">
+            <FlashList
+              data={comments}
+              renderItem={renderComment}
+              estimatedItemSize={100}
+              onEndReached={hasMoreComments ? fetchMoreComments : null}
+              onEndReachedThreshold={0.5}
+              ListEmptyComponent={
+                loadingComments ? (
+                  <View className="items-center py-8">
+                    <ActivityIndicator size="small" color="#8b7355" />
+                  </View>
+                ) : (
+                  <View className="mt-6 items-center py-8">
+                    <Text className="text-base text-[#5c4d3d]">No comments yet</Text>
+                    <Text className="mt-2 text-center text-[#8b7355]">
+                      Be the first to share your thoughts!
+                    </Text>
+                  </View>
+                )
+              }
+              ListFooterComponent={
+                loadingComments && comments.length > 0 ? (
+                  <View className="items-center py-4">
+                    <ActivityIndicator size="small" color="#8b7355" />
+                  </View>
+                ) : null
+              }
+            />
+
+            <View className="mt-2 overflow-hidden rounded-lg border border-[#dfcfbd]/20 bg-background shadow-sm">
+              <TextInput
+                ref={inputRef}
+                value={newComment}
+                onChangeText={setNewComment}
+                placeholder="Write a comment..."
+                className="rounded-lg bg-card p-3 text-gray-800"
+                multiline
+                maxLength={500}
+              />
+              <View className="h-px w-full bg-[#dfcfbd]/20" />
+              <Pressable
+                onPress={submitComment}
+                disabled={commenting || !newComment.trim() || !userId}
+                className={`items-center justify-center bg-[#dfcfbd]/10 p-3 ${
+                  commenting || !newComment.trim() || !userId ? 'opacity-50' : ''
+                }`}>
+                <Text className="text-center font-medium text-[#5c4d3d]">
+                  {commenting ? 'Posting...' : 'Post Comment'}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </BottomSheetScrollView>
+      </Sheet>
     </>
   );
 }
