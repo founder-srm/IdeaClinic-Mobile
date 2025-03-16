@@ -46,7 +46,6 @@ export default function AccountPage() {
 
   const menuItems = [
     { title: 'Edit profile', icon: 'person-circle-outline' },
-    { title: 'Payment', icon: 'card-outline' },
     { title: 'Support', icon: 'help-circle-outline' },
     { title: 'About the app', icon: 'information-circle-outline' },
   ];
