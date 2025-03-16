@@ -33,7 +33,6 @@ export default function PostsProtectedLayout() {
           headerShown: true,
           presentation: 'modal',
           animation: 'slide_from_right',
-          headerTitle: 'Post Details',
           headerTransparent: true,
           headerBlurEffect: 'dark',
           headerTintColor: 'black',

@@ -1,6 +1,6 @@
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useEffect, useState, useRef } from 'react';
 import {
   View,
@@ -14,6 +14,8 @@ import {
   TextInput,
   Pressable,
   Dimensions,
+  Linking,
+  Share,
 } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -24,8 +26,10 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { Container } from '~/components/Container';
+import { Button } from '~/components/nativewindui/Button';
 import { Separator } from '~/components/ui/separator';
 import { useUser } from '~/hooks/useUser';
+import { cn } from '~/lib/cn';
 import { COLORS } from '~/theme/colors';
 import { supabase } from '~/utils/supabase';
 
@@ -207,30 +211,6 @@ export default function PostPage() {
     }
   };
 
-
-  <AnimatedPressable
-    onPress={handleLike}
-    disabled={updating || !userId}
-    className={`flex-row items-center justify-center rounded-xl px-3 py-3 shadow-lg ${
-      isLiked ? 'bg-[#e8d7c1]' : 'bg-[#dfcfbd]'
-    }`}
-    style={{
-      elevation: 3,
-      shadowColor: '#5c4d3d',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.2,
-      shadowRadius: 3,
-    }}>
-    <AntDesign
-      name={isLiked ? 'heart' : 'hearto'}
-      size={24}
-      color={isLiked ? '#d16969' : '#8b7355'}
-    />
-    <Text className="ml-2 text-sm font-medium text-[#5c4d3d]">
-      {likeCount} {likeCount === 1 ? 'Like' : 'Likes'}
-    </Text>
-  </AnimatedPressable>;
-
   // Now, let's add the comment liking functionality
   // First, add a new function to handle comment likes
 
@@ -336,25 +316,197 @@ export default function PostPage() {
   };
 
   const renderContent = (content: string) => {
-    // Split content by code blocks (assuming they're wrapped in ```)
-    const parts = content.split(/(```[\s\S]*?```)/);
+    // Create a temporary div to parse HTML content
+    const parseHTML = (htmlString: string) => {
+      // Simple HTML tag parsing using regex
+      // Find all HTML tags and their content
+      const elements: { tag: string; content: string; attrs?: { [key: string]: string } }[] = [];
 
-    return parts.map((part, index) => {
-      if (part.startsWith('```') && part.endsWith('```')) {
-        const code = part.slice(3, -3);
-        return (
-          <View key={index} className="my-4 rounded-lg bg-[#2d2d2d] p-4">
-            <Text className="font-mono text-white">{code}</Text>
-          </View>
+      // Process the HTML content
+      let remainingContent = htmlString.trim();
+
+      while (remainingContent.length > 0) {
+        // Check if starts with a tag
+        const tagMatch = remainingContent.match(
+          /^<([a-zA-Z0-9]+)([^>]*)>([\s\S]*?)<\/\1>|^<([a-zA-Z0-9]+)([^>]*)\/>|^([^<]+)/
         );
+
+        if (!tagMatch) break;
+
+        if (tagMatch[6]) {
+          // Text content without tags
+          elements.push({ tag: 'text', content: tagMatch[6] });
+          remainingContent = remainingContent.slice(tagMatch[0].length);
+          continue;
+        }
+
+        const fullMatch = tagMatch[0];
+        const tag = tagMatch[1] || tagMatch[4];
+        const attrsString = (tagMatch[2] || tagMatch[5] || '').trim();
+        const innerContent = tagMatch[3] || '';
+
+        // Parse attributes
+        const attrs: { [key: string]: string } = {};
+        const attrMatches = attrsString.matchAll(/([a-zA-Z0-9_-]+)(?:=["']([^"']*)["'])?/g);
+        for (const attrMatch of attrMatches) {
+          attrs[attrMatch[1]] = attrMatch[2] || '';
+        }
+
+        elements.push({ tag, content: innerContent, attrs });
+        remainingContent = remainingContent.slice(fullMatch.length);
       }
-      // Regular text
-      return (
-        <Text key={index} className="text-base leading-relaxed text-gray-700">
-          {part}
-        </Text>
-      );
-    });
+
+      return elements;
+    };
+
+    // Render elements recursively
+    const renderElement = (
+      element: { tag: string; content: string; attrs?: { [key: string]: string } },
+      index: number | string
+    ) => {
+      switch (element.tag.toLowerCase()) {
+        case 'text':
+          return (
+            <Text key={index} className="text-base text-gray-700">
+              {element.content}
+            </Text>
+          );
+
+        case 'h1':
+          return (
+            <Text key={index} className="mb-2 mt-4 text-3xl font-bold text-gray-800">
+              {element.content}
+            </Text>
+          );
+
+        case 'h2':
+          return (
+            <Text key={index} className="mb-2 mt-4 text-2xl font-bold text-gray-800">
+              {element.content}
+            </Text>
+          );
+
+        case 'h3':
+          return (
+            <Text key={index} className="mb-2 mt-3 text-xl font-bold text-gray-800">
+              {element.content}
+            </Text>
+          );
+
+        case 'p': {
+          const parsedPContent = parseHTML(element.content);
+          return (
+            <View key={index} className="mb-4">
+              {parsedPContent.map((subElement, i) => renderElement(subElement, `${index}-${i}`))}
+            </View>
+          );
+        }
+
+        case 'code':
+          return (
+            <Text
+              key={index}
+              className="rounded bg-gray-100 px-1 font-mono text-base text-gray-800">
+              {element.content}
+            </Text>
+          );
+
+        case 'pre':
+          return (
+            <View key={index} className="my-4 rounded-lg bg-[#2d2d2d] p-4">
+              <Text className="font-mono text-white">{element.content}</Text>
+            </View>
+          );
+
+        case 'blockquote':
+          return (
+            <View key={index} className="my-4 border-l-4 border-gray-300 pl-4">
+              <Text className="text-base italic text-gray-600">{element.content}</Text>
+            </View>
+          );
+
+        case 'ul': {
+          const listItems = parseHTML(element.content);
+          return (
+            <View key={index} className="mb-4 ml-4">
+              {listItems.map((item, i) => {
+                if (item.tag.toLowerCase() === 'li') {
+                  return (
+                    <View key={`${index}-${i}`} className="mb-1 flex-row">
+                      <Text className="mr-2 text-base">•</Text>
+                      <Text className="flex-1 text-base text-gray-700">{item.content}</Text>
+                    </View>
+                  );
+                }
+                return null;
+              })}
+            </View>
+          );
+        }
+
+        case 'ol': {
+          const orderedItems = parseHTML(element.content);
+          return (
+            <View key={index} className="mb-4 ml-4">
+              {orderedItems.map((item, i) => {
+                if (item.tag.toLowerCase() === 'li') {
+                  return (
+                    <View key={`${index}-${i}`} className="mb-1 flex-row">
+                      <Text className="mr-2 text-base">{i + 1}.</Text>
+                      <Text className="flex-1 text-base text-gray-700">{item.content}</Text>
+                    </View>
+                  );
+                }
+                return null;
+              })}
+            </View>
+          );
+        }
+
+        case 'br':
+          return <View key={index} className="h-4" />;
+
+        case 'img':
+          return element.attrs?.src ? (
+            <View key={index} className="my-4 overflow-hidden rounded-lg">
+              <Image
+                source={{ uri: element.attrs.src }}
+                className="h-48 w-full"
+                resizeMode="cover"
+              />
+              {element.attrs?.alt && (
+                <Text className="mt-1 text-center text-sm text-gray-500">{element.attrs.alt}</Text>
+              )}
+            </View>
+          ) : null;
+
+        case 'a':
+          return (
+            <Text
+              key={index}
+              className="text-blue-600 underline"
+              onPress={() => element.attrs?.href && Linking.openURL(element.attrs.href)}>
+              {element.content}
+            </Text>
+          );
+
+        default:
+          return (
+            <Text key={index} className="text-base text-gray-700">
+              {element.content}
+            </Text>
+          );
+      }
+    };
+
+    // Main render function
+    const elements = parseHTML(content);
+
+    return (
+      <View className="space-y-2">
+        {elements.map((element, index) => renderElement(element, index))}
+      </View>
+    );
   };
 
   useEffect(() => {
@@ -483,236 +635,216 @@ export default function PostPage() {
   }
 
   return (
-    <Container>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1">
-        <View className="mt-[5rem] flex-1">
-          <ScrollView className="flex-1" showsVerticalScrollIndicator={false} bounces={false}>
-            <View className="p-4">
-              {/* Banner Image */}
-              {post.banner_url && (
-                <Animated.View
-                  entering={FadeInDown.duration(600)}
-                  className="mb-6 overflow-hidden rounded-xl shadow">
-                  <Image
-                    source={{ uri: post.banner_url }}
-                    className="h-48 w-full"
-                    resizeMode="cover"
-                  />
-                </Animated.View>
-              )}
-
-              {/* Title and Tag */}
-              <Animated.View entering={FadeInDown.duration(600).delay(200)} className="mb-6">
-                <Text className="text-2xl font-bold text-gray-800">{post.title}</Text>
-                {post.label && (
-                  <View className="mt-2 flex-row items-center">
-                    <View
-                      style={{ backgroundColor: post.label_color }}
-                      className="mr-2 h-3 w-3 rounded-full"
+    <>
+      <Stack.Screen options={{ headerTitle: `${post.title}` }} />
+      <Container>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          className="flex-1">
+          <View className="mt-[5rem] flex-1">
+            <ScrollView className="flex-1" showsVerticalScrollIndicator={false} bounces={false}>
+              <View className="p-4">
+                {/* Banner Image */}
+                {post.banner_url && (
+                  <Animated.View
+                    entering={FadeInDown.duration(600)}
+                    className="mb-6 overflow-hidden rounded-xl shadow">
+                    <Image
+                      source={{ uri: post.banner_url }}
+                      className="h-48 w-full"
+                      resizeMode="cover"
                     />
-                    <Text className="text-sm text-gray-600">{post.label}</Text>
-                  </View>
+                  </Animated.View>
                 )}
-              </Animated.View>
 
-              {/* Creator Info Card */}
-              {creator && (
-                <AnimatedPressable
-                  onPress={navigateToUserProfile}
-                  entering={FadeInDown.duration(600).delay(400)}
-                  className="mb-6 overflow-hidden rounded-xl border border-[#dfcfbd]/20 bg-[#dfcfbd] p-4 shadow-md">
-                  <View className="flex-row items-center justify-between">
-                    <View className="flex-1 flex-row items-center">
-                      <View className="h-14 w-14 overflow-hidden rounded-full border-2 border-[#dfcfbd]/30 shadow-sm">
-                        {creator.avatar_url ? (
-                          <Image
-                            source={{ uri: creator.avatar_url }}
-                            className="h-full w-full"
-                            resizeMode="cover"
-                          />
-                        ) : (
-                          <View className="h-full w-full items-center justify-center bg-gradient-to-br from-[#dfcfbd]/50 to-[#dfcfbd]/30">
-                            <Text className="text-xl font-bold text-[#5c4d3d]">
-                              {creator.username?.[0]?.toUpperCase() || 'U'}
+                {/* Title and Tag */}
+                <Animated.View entering={FadeInDown.duration(600).delay(200)} className="mb-6">
+                  <Text className="text-2xl font-bold text-gray-800">{post.title}</Text>
+                  {post.label && (
+                    <View className="mt-2 flex-row items-center">
+                      <View
+                        style={{ backgroundColor: post.label_color }}
+                        className="mr-2 h-3 w-3 rounded-full"
+                      />
+                      <Text className="text-sm text-gray-600">{post.label}</Text>
+                    </View>
+                  )}
+                </Animated.View>
+
+                {/* Creator Info Card */}
+                {creator && (
+                  <AnimatedPressable
+                    onPress={navigateToUserProfile}
+                    entering={FadeInDown.duration(600).delay(400)}
+                    className="mb-6 overflow-hidden rounded-xl border border-[#dfcfbd]/20 bg-[#dfcfbd] p-4 shadow-md">
+                    <View className="flex-row items-center justify-between">
+                      <View className="flex-1 flex-row items-center">
+                        <View className="h-14 w-14 overflow-hidden rounded-full border-2 border-[#dfcfbd]/30 shadow-sm">
+                          {creator.avatar_url ? (
+                            <Image
+                              source={{ uri: creator.avatar_url }}
+                              className="h-full w-full"
+                              resizeMode="cover"
+                            />
+                          ) : (
+                            <View className="h-full w-full items-center justify-center bg-gradient-to-br from-[#dfcfbd]/50 to-[#dfcfbd]/30">
+                              <Text className="text-xl font-bold text-[#5c4d3d]">
+                                {creator.username?.[0]?.toUpperCase() || 'U'}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+
+                        <View className="ml-3 flex-1">
+                          <View className="flex-row items-center">
+                            <Text className="text-base font-semibold text-gray-800">
+                              {creator.full_name || creator.username || 'Anonymous'}
+                            </Text>
+                            <View className="ml-2 rounded-full bg-[#dfcfbd]/20 px-2 py-0.5">
+                              <Text className="text-xs text-[#5c4d3d]">Author</Text>
+                            </View>
+                          </View>
+
+                          <View className="mt-1 flex-row items-center">
+                            <AntDesign name="calendar" size={14} color="#8b7355" />
+                            <Text className="ml-1 text-xs text-gray-500">
+                              {new Date(post.created_at).toLocaleDateString(undefined, {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                              })}
                             </Text>
                           </View>
-                        )}
-                      </View>
-
-                      <View className="ml-3 flex-1">
-                        <View className="flex-row items-center">
-                          <Text className="text-base font-semibold text-gray-800">
-                            {creator.full_name || creator.username || 'Anonymous'}
-                          </Text>
-                          <View className="ml-2 rounded-full bg-[#dfcfbd]/20 px-2 py-0.5">
-                            <Text className="text-xs text-[#5c4d3d]">Author</Text>
-                          </View>
-                        </View>
-
-                        <View className="mt-1 flex-row items-center">
-                          <AntDesign name="calendar" size={14} color="#8b7355" />
-                          <Text className="ml-1 text-xs text-gray-500">
-                            {new Date(post.created_at).toLocaleDateString(undefined, {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                            })}
-                          </Text>
                         </View>
                       </View>
-                    </View>
 
-                    <View className="rounded-full bg-[#dfcfbd]/10 p-2">
-                      <AntDesign name="user" size={16} color="#8b7355" />
+                      <View className="rounded-full bg-[#dfcfbd]/10 p-2">
+                        <AntDesign name="user" size={16} color="#8b7355" />
+                      </View>
                     </View>
+                  </AnimatedPressable>
+                )}
+                <Separator className="mb-6" />
+
+                {/* Post Content */}
+                <Animated.View entering={FadeInDown.duration(600).delay(600)} className="mb-8">
+                  {post.content && renderContent(post.content)}
+                </Animated.View>
+
+                {/* Engagement Actions */}
+                <Animated.View entering={FadeInDown.duration(600).delay(800)} className="mb-6">
+                  <View className="flex-row flex-wrap items-center justify-center gap-8">
+                    <Button
+                      onPress={handleLike}
+                      disabled={updating || !userId}
+                      className={cn(isLiked ? 'bg-[#dfcfbd]' : 'bg-[#dfcfbd]', 'p-2')}
+                      size="sm">
+                      <AntDesign
+                        name={isLiked ? 'heart' : 'hearto'}
+                        size={24}
+                        color={isLiked ? '#d16969' : '#8b7355'}
+                      />
+                      <Text className="ml-2">{likeCount}</Text>
+                    </Button>
+
+                    <Button onPress={toggleComments} className="bg-[#dfcfbd] p-2" size="sm">
+                      <FontAwesome name="comments" size={24} color="#8b7355" />
+                      <Text>{commentCount}</Text>
+                    </Button>
+
+                    <Button
+                      onPress={() => {
+                        if (post) {
+                          Share.share({
+                            title: post.title,
+                            message: `Check out this post: ${post.title}`,
+                            url: `https://ideaclinic-forum.vercel.app/forum/post/${post.id}`,
+                          }).catch((err) => console.error('Error sharing:', err));
+                        }
+                      }}
+                      size="icon"
+                      className="bg-[#dfcfbd] p-1">
+                      <AntDesign name="sharealt" size={24} color="#8b7355" />
+                    </Button>
                   </View>
-                </AnimatedPressable>
-              )}
-              <Separator className="mb-6" />
-
-              {/* Post Content */}
-              <Animated.View entering={FadeInDown.duration(600).delay(600)} className="mb-8">
-                {post.content && renderContent(post.content)}
-              </Animated.View>
-
-              {/* Engagement Actions */}
-              <Animated.View entering={FadeInDown.duration(600).delay(800)} className="mb-6">
-                <View className="flex-row flex-wrap justify-center gap-2">
-                  {/* Like button */}
-                  <AnimatedPressable
-                    onPress={handleLike}
-                    disabled={updating || !userId}
-                    className={`flex-row items-center justify-center rounded-xl px-3 py-3 shadow-lg ${
-                      isLiked ? 'bg-[#e8d7c1]' : 'bg-[#dfcfbd]'
-                    }`}
-                    style={{
-                      elevation: 3,
-                      shadowColor: '#5c4d3d',
-                      shadowOffset: { width: 0, height: 2 },
-                      shadowOpacity: 0.2,
-                      shadowRadius: 3,
-                    }}>
-                    <AntDesign
-                      name={isLiked ? 'heart' : 'hearto'}
-                      size={24}
-                      color={isLiked ? '#d16969' : '#8b7355'}
-                    />
-                    <Text className="ml-2 text-sm font-medium text-[#5c4d3d]">
-                      {likeCount} {likeCount === 1 ? 'Like' : 'Likes'}
-                    </Text>
-                  </AnimatedPressable>
-
-                  {/* Comments button */}
-                  <AnimatedPressable
-                    onPress={toggleComments}
-                    className="flex-row items-center justify-center rounded-xl bg-[#dfcfbd] px-3 py-3 shadow-lg"
-                    style={{
-                      elevation: 3,
-                      shadowColor: '#5c4d3d',
-                      shadowOffset: { width: 0, height: 2 },
-                      shadowOpacity: 0.2,
-                      shadowRadius: 3,
-                    }}>
-                    <FontAwesome name="comments" size={24} color="#8b7355" />
-                    <Text className="ml-2 text-sm font-medium text-[#5c4d3d]">
-                      {commentCount} {commentCount === 1 ? 'Comment' : 'Comments'}
-                    </Text>
-                  </AnimatedPressable>
-
-                  {/* Share button */}
-                  <AnimatedPressable
-                    className="flex-row items-center justify-center rounded-xl bg-[#dfcfbd] px-3 py-3 shadow-lg"
-                    style={{
-                      elevation: 3,
-                      shadowColor: '#5c4d3d',
-                      shadowOffset: { width: 0, height: 2 },
-                      shadowOpacity: 0.2,
-                      shadowRadius: 3,
-                    }}>
-                    <AntDesign name="sharealt" size={24} color="#8b7355" />
-                    <Text className="ml-2 text-sm font-medium text-[#5c4d3d]">Share</Text>
-                  </AnimatedPressable>
-                </View>
-              </Animated.View>
-            </View>
-          </ScrollView>
-          {/* Comments Section - Make sure it completely covers the screen when shown */}
-          {showComments && (
-            <Animated.View
-              style={[animatedCommentsStyle]}
-              className="absolute bottom-0 left-0 right-0 border border-gray-200 bg-white shadow-lg">
-              <View className="border-b border-gray-200 bg-white px-4 py-3">
-                <View className="flex-row items-center justify-between">
-                  <Text className="text-lg font-semibold text-gray-800">Comments</Text>
-                  <Pressable onPress={toggleComments} className="rounded-full bg-gray-100 p-2">
-                    <AntDesign name="close" size={20} color="#8b7355" />
-                  </Pressable>
-                </View>
+                </Animated.View>
               </View>
+            </ScrollView>
+            {/* Comments Section - Make sure it completely covers the screen when shown */}
+            {showComments && (
+              <Animated.View
+                style={[animatedCommentsStyle]}
+                className="absolute bottom-0 left-0 right-0 border border-gray-200 bg-white shadow-lg">
+                <View className="border-b border-gray-200 bg-white px-4 py-3">
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-lg font-semibold text-gray-800">Comments</Text>
+                    <Pressable onPress={toggleComments} className="rounded-full bg-gray-100 p-2">
+                      <AntDesign name="close" size={20} color="#8b7355" />
+                    </Pressable>
+                  </View>
+                </View>
 
-              <View className="flex-1 bg-gray-50 px-4">
-                <FlashList
-                  data={comments}
-                  renderItem={renderComment}
-                  estimatedItemSize={100}
-                  onEndReached={() => {
-                    if (comments.length > 0 && !loadingComments) {
-                      fetchComments(comments[comments.length - 1].id);
+                <View className="flex-1 bg-gray-50 px-4">
+                  <FlashList
+                    data={comments}
+                    renderItem={renderComment}
+                    estimatedItemSize={100}
+                    onEndReached={() => {
+                      if (comments.length > 0 && !loadingComments) {
+                        fetchComments(comments[comments.length - 1].id);
+                      }
+                    }}
+                    onEndReachedThreshold={0.5}
+                    ListEmptyComponent={
+                      loadingComments ? (
+                        <View className="items-center py-8">
+                          <ActivityIndicator size="small" color="#8b7355" />
+                        </View>
+                      ) : (
+                        <View className="mt-6 items-center py-8">
+                          <Text className="text-base text-gray-600">No comments yet</Text>
+                          <Text className="mt-2 text-center text-gray-500">
+                            Be the first to share your thoughts!
+                          </Text>
+                        </View>
+                      )
                     }
-                  }}
-                  onEndReachedThreshold={0.5}
-                  ListEmptyComponent={
-                    loadingComments ? (
-                      <View className="items-center py-8">
-                        <ActivityIndicator size="small" color="#8b7355" />
-                      </View>
-                    ) : (
-                      <View className="mt-6 items-center py-8">
-                        <Text className="text-base text-gray-600">No comments yet</Text>
-                        <Text className="mt-2 text-center text-gray-500">
-                          Be the first to share your thoughts!
-                        </Text>
-                      </View>
-                    )
-                  }
-                  ListFooterComponent={
-                    loadingComments && comments.length > 0 ? (
-                      <View className="items-center py-4">
-                        <ActivityIndicator size="small" color="#8b7355" />
-                      </View>
-                    ) : null
-                  }
-                />
-
-                <View className="shadow-inner border-t border-gray-200 bg-white p-3">
-                  <TextInput
-                    ref={inputRef}
-                    value={newComment}
-                    onChangeText={setNewComment}
-                    placeholder="Write a comment..."
-                    className="mb-2 rounded-lg bg-gray-100 p-3 text-gray-800"
-                    multiline
-                    maxLength={500}
+                    ListFooterComponent={
+                      loadingComments && comments.length > 0 ? (
+                        <View className="items-center py-4">
+                          <ActivityIndicator size="small" color="#8b7355" />
+                        </View>
+                      ) : null
+                    }
                   />
-                  <Pressable
-                    onPress={submitComment}
-                    disabled={commenting || !newComment.trim() || !userId}
-                    className={`items-center justify-center rounded-lg bg-[#dfcfbd] p-3 ${
-                      commenting || !newComment.trim() || !userId ? 'opacity-50' : ''
-                    }`}>
-                    <Text className="text-center font-medium text-[#5c4d3d]">
-                      {commenting ? 'Posting...' : 'Post Comment'}
-                    </Text>
-                  </Pressable>
+
+                  <View className="shadow-inner border-t border-gray-200 bg-white p-3">
+                    <TextInput
+                      ref={inputRef}
+                      value={newComment}
+                      onChangeText={setNewComment}
+                      placeholder="Write a comment..."
+                      className="mb-2 rounded-lg bg-gray-100 p-3 text-gray-800"
+                      multiline
+                      maxLength={500}
+                    />
+                    <Pressable
+                      onPress={submitComment}
+                      disabled={commenting || !newComment.trim() || !userId}
+                      className={`items-center justify-center rounded-lg bg-[#dfcfbd] p-3 ${
+                        commenting || !newComment.trim() || !userId ? 'opacity-50' : ''
+                      }`}>
+                      <Text className="text-center font-medium text-[#5c4d3d]">
+                        {commenting ? 'Posting...' : 'Post Comment'}
+                      </Text>
+                    </Pressable>
+                  </View>
                 </View>
-              </View>
-            </Animated.View>
-          )}
-        </View>
-      </KeyboardAvoidingView>
-    </Container>
+              </Animated.View>
+            )}
+          </View>
+        </KeyboardAvoidingView>
+      </Container>
+    </>
   );
 }
-
