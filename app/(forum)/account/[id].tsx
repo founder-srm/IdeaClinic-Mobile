@@ -1,21 +1,35 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
+import * as React from 'react';
 import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { fetchUserProfile, ProfileData } from '~/actions/settings/account';
 import { Container } from '~/components/Container';
 import { UseSignOut } from '~/hooks/useSignOut';
 
 export default function AccountPage() {
-  const { id } = useLocalSearchParams();
   const router = useRouter();
+  const [profile, setProfile] = React.useState<ProfileData | null>(null);
+  const [loading, setLoading] = React.useState(true);
 
   const signOut = UseSignOut();
 
-  const user = {
-    name: id,
-    avatar:
-      'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/7b84f9f8974ab57c2b5a48b349fe3a0d?_a=AQAEuj9', // Placeholder image
-  };
+  // Load user profile data
+  React.useEffect(() => {
+    async function loadProfile() {
+      try {
+        setLoading(true);
+        const userData = await fetchUserProfile();
+        setProfile(userData);
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProfile();
+  }, []);
 
   const handleLogout = async () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -41,8 +55,8 @@ export default function AccountPage() {
     <Container>
       <ScrollView>
         <View style={styles.profileContainer}>
-          <Image source={{ uri: user.avatar }} style={styles.avatar} />
-          <Text style={styles.name}>{user.name}</Text>
+          <Image source={{ uri: profile?.avatar_url }} style={styles.avatar} />
+          <Text style={styles.name}>{profile?.full_name}</Text>
         </View>
 
         <View style={styles.menuContainer}>
@@ -80,7 +94,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#D8BFD8',
+    color: '#a383cc',
     marginTop: 10,
   },
   menuContainer: {
