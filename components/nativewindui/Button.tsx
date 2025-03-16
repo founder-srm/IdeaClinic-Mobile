@@ -36,8 +36,8 @@ const androidRootVariants = cva('overflow-hidden', {
     size: {
       none: '',
       icon: 'rounded-full',
-      sm: 'rounded-full',
-      md: 'rounded-full',
+      sm: 'rounded-lg',
+      md: 'rounded-lg',
       lg: 'rounded-xl',
     },
   },
