@@ -1,15 +1,32 @@
-import { useLocalSearchParams } from 'expo-router';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { Container } from '~/components/Container';
+import { UseSignOut } from '~/hooks/useSignOut';
 
 export default function AccountPage() {
   const { id } = useLocalSearchParams();
+  const router = useRouter();
+
+  const signOut = UseSignOut();
 
   const user = {
     name: id,
     avatar:
-      'https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg', // Placeholder image
+      'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/7b84f9f8974ab57c2b5a48b349fe3a0d?_a=AQAEuj9', // Placeholder image
+  };
+
+  const handleLogout = async () => {
+    Alert.alert('Logout', 'Are you sure you want to logout?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Logout',
+        onPress: () => {
+          signOut();
+          router.replace('/login');
+        },
+      },
+    ]);
   };
 
   return (
@@ -28,8 +45,8 @@ export default function AccountPage() {
           ))}
         </View>
 
-        <TouchableOpacity disabled style={styles.logoutButton}>
-          <Text style={styles.logoutText}>Log out</Text>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
       </ScrollView>
     </Container>
@@ -70,10 +87,11 @@ const styles = StyleSheet.create({
   logoutButton: {
     padding: 15,
     alignItems: 'center',
-    opacity: 0.5, // Disabled effect
+    opacity: 0.8,
   },
   logoutText: {
     fontSize: 16,
-    color: '#888',
+    color: '#FF3B30',
+    textDecorationLine: 'underline',
   },
 });
