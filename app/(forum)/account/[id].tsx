@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -29,6 +30,8 @@ export default function AccountPage() {
     ]);
   };
 
+  const menuItems = ['Edit profile', 'Payment', 'Support', 'About the app'];
+
   return (
     <Container>
       <ScrollView>
@@ -38,9 +41,10 @@ export default function AccountPage() {
         </View>
 
         <View style={styles.menuContainer}>
-          {['Edit profile', 'Payment', 'Support', 'About the app'].map((item, index) => (
+          {menuItems.map((item, index) => (
             <TouchableOpacity key={index} style={styles.menuItem}>
               <Text style={styles.menuText}>{item}</Text>
+              <Ionicons name="chevron-forward" size={20} color="#000" />
             </TouchableOpacity>
           ))}
         </View>
@@ -75,13 +79,14 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   menuItem: {
+    flexDirection: 'row', // Align text & icon in row
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 15,
     paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
   },
   menuText: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#000000',
   },
   logoutButton: {
