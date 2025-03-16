@@ -6,11 +6,13 @@ import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } fr
 import { fetchUserProfile, ProfileData } from '~/actions/settings/account';
 import { Container } from '~/components/Container';
 import { UseSignOut } from '~/hooks/useSignOut';
+import { useStore } from "~/store/store";
 
 export default function AccountPage() {
   const router = useRouter();
   const [profile, setProfile] = React.useState<ProfileData | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const { user } = useStore();
 
   const signOut = UseSignOut();
 
@@ -56,6 +58,10 @@ export default function AccountPage() {
         <View style={styles.profileContainer}>
           <Image source={{ uri: profile?.avatar_url }} style={styles.avatar} />
           <Text style={styles.name}>{profile?.full_name}</Text>
+          <Text style={styles.name}>{profile?.bio}</Text>
+          <Text style={styles.name}>{user?.email}</Text>
+          <Text style={styles.name}>{profile?.title}</Text>
+          <Text style={styles.name}>{profile?.dept}</Text>
         </View>
 
         <View style={styles.menuContainer}>
