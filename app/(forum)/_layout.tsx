@@ -56,8 +56,8 @@ export default function PostsProtectedLayout() {
         name="account/[id]"
         options={{
           headerShown: true,
-          presentation: 'modal',
-          animation: 'slide_from_left',
+          presentation: 'card',
+          animation: 'slide_from_right',
           headerTitle: 'Account Profile',
           headerTransparent: true,
           headerBlurEffect: 'dark',
