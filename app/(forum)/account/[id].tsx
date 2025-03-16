@@ -30,7 +30,12 @@ export default function AccountPage() {
     ]);
   };
 
-  const menuItems = ['Edit profile', 'Payment', 'Support', 'About the app'];
+  const menuItems = [
+    { title: 'Edit profile', icon: 'person-circle-outline' },
+    { title: 'Payment', icon: 'card-outline' },
+    { title: 'Support', icon: 'help-circle-outline' },
+    { title: 'About the app', icon: 'information-circle-outline' },
+  ];
 
   return (
     <Container>
@@ -43,7 +48,10 @@ export default function AccountPage() {
         <View style={styles.menuContainer}>
           {menuItems.map((item, index) => (
             <TouchableOpacity key={index} style={styles.menuItem}>
-              <Text style={styles.menuText}>{item}</Text>
+              <View style={styles.menuItemLeft}>
+                <Ionicons name={item.icon} size={24} color="#000" style={styles.menuIcon} />
+                <Text style={styles.menuText}>{item.title}</Text>
+              </View>
               <Ionicons name="chevron-forward" size={20} color="#000" />
             </TouchableOpacity>
           ))}
@@ -84,6 +92,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 15,
     paddingHorizontal: 20,
+  },
+  menuItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  menuIcon: {
+    marginRight: 10,
   },
   menuText: {
     fontSize: 18,
