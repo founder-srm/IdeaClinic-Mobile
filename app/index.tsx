@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Animated } from 'react-native';
 
-import IntroScreen from './IntroScreen';
+import IntroScreen from '../components/IntroScreen';
 
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
@@ -46,7 +46,7 @@ export default function WelcomeScreen() {
       <Animated.Text
         style={{ opacity: fadeAnim }}
         className="mt-1 text-center text-[40px] font-semibold leading-[50px]">
-        to careerspace
+        to Idea Clinic
       </Animated.Text>
 
       <Animated.Image

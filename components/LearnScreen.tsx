@@ -1,17 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Animated } from 'react-native';
 
-import LearnScreen from './LearnScreen';
+import StartScreen from './startScreen';
 
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 
-const model2 = require('../assets/model2.png');
+const model3 = require('../assets/model3.png');
 
-export default function IntroScreen() {
+export default function LearnScreen() {
   const slideAnim = useRef(new Animated.Value(50)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const [showScreen3, setShowScreen3] = useState(false);
+  const [showScreen4, setShowScreen4] = useState(false);
 
   useEffect(() => {
     Animated.parallel([
@@ -28,36 +28,36 @@ export default function IntroScreen() {
     ]).start();
   }, []);
 
-  if (showScreen3) {
-    return <LearnScreen />;
+  if (showScreen4) {
+    return <StartScreen />;
   }
 
   return (
-    <View className="flex-1 items-center justify-center bg-[#F7CE45]">
+    <View className="flex-1 items-center justify-center bg-[#DCC1FF]">
       <Animated.Text
         style={{
           transform: [{ translateY: slideAnim }],
           opacity: fadeAnim,
         }}
         className="text-center text-[50px] font-semibold leading-[60px]">
-        Get support in
+        Connect with
       </Animated.Text>
 
       <Animated.Text
         style={{ opacity: fadeAnim }}
         className="mt-1 text-center text-[40px] font-semibold leading-[50px]">
-        your new career
+        Seniors and Alumni
       </Animated.Text>
 
       <Animated.Image
-        source={model2}
+        source={model3}
         style={{ opacity: fadeAnim }}
         className="mt-5 h-[382px] w-[393px]"
       />
 
       <Button
         className="bottom-3 mt-5 h-[50px] w-[150px] rounded-full border-2 border-black bg-transparent"
-        onPress={() => setShowScreen3(true)}>
+        onPress={() => setShowScreen4(true)}>
         <Text className="font-bold text-black">Next</Text>
       </Button>
     </View>

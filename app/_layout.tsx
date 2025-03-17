@@ -11,21 +11,25 @@ import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { PortalHost } from '@rn-primitives/portal';
 import { useFonts } from 'expo-font';
 import * as NavigationBar from 'expo-navigation-bar';
-import { Link, Stack } from 'expo-router';
+import { Link, Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { ThemeToggle } from '~/components/nativewindui/ThemeToggle';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { AuthProvider } from '~/providers/AuthProvider';
 import { NAV_THEME } from '~/theme';
+import { supabase } from '~/utils/supabase';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function Layout() {
   useInitialAndroidBarSync();
+  const [appIsReady, setAppIsReady] = useState(false);
+  const segments = useSegments();
+  const router = useRouter();
   const { colorScheme, isDarkColorScheme } = useColorScheme();
   const [loaded, error] = useFonts({
     'Onest-Black': require('../assets/fonts/Onest-Black.ttf'),
@@ -39,7 +43,32 @@ export default function Layout() {
   });
 
   useEffect(() => {
-    if (loaded || error) {
+    async function prepare() {
+      try {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          const inAuthGroup = segments[0] === '(auth)';
+          const inProtectedGroup = segments[0] === '(forum)' || segments[0] === '(settings)';
+          if (!session && inProtectedGroup) {
+            // If not authenticated and trying to access protected routes
+            router.replace('/(auth)/signup');
+          } else if (session && inAuthGroup) {
+            // If authenticated and trying to access auth routes
+            router.replace('/(forum)/forum');
+          }
+        });
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        // Tell the application to render
+        setAppIsReady(true);
+      }
+    }
+
+    prepare();
+  }, []);
+
+  useEffect(() => {
+    if (loaded || error || appIsReady) {
       SplashScreen.hideAsync();
     }
   }, [loaded, error]);
@@ -74,7 +103,17 @@ export default function Layout() {
                 <Stack.Screen name="index" options={{ headerShown: false }} />
                 <Stack.Screen
                   name="terms-and-conditions"
-                  options={{ presentation: 'modal', headerShown: true }}
+                  options={{
+                    headerShown: true,
+                    headerBackButtonDisplayMode: 'minimal',
+                    headerTitle: 'Settings',
+                    headerTransparent: true,
+                    headerBlurEffect: 'dark',
+                    headerTintColor: 'black',
+                    headerBackVisible: true,
+                    presentation: 'fullScreenModal',
+                    animation: 'slide_from_bottom',
+                  }}
                 />
                 <Stack.Screen name="(auth)" options={{ headerShown: false }} />
                 <Stack.Screen name="(settings)" options={{ headerShown: false }} />

@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "main": "expo-router/entry",
   "scripts": {
-    "start": "expo start --go --reset-cache",
+    "start": "expo start --dev-client --reset-cache",
     "ios": "expo run:ios",
     "android": "expo run:android",
     "build:dev": "eas build --profile development",

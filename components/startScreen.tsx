@@ -1,4 +1,5 @@
-import { router } from 'expo-router';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { Link, router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Animated, TouchableOpacity } from 'react-native';
 
@@ -61,6 +62,9 @@ export default function StartScreen() {
           {accepted && <View className="h-3 w-3 rounded-full bg-black" />}
         </View>
         <Text className="bottom-5">I accept the Terms and Conditions</Text>
+        <Link href="/terms-and-conditions" className="bottom-5 ml-2">
+          <FontAwesome6 name="up-right-from-square" size={15} />
+        </Link>
       </TouchableOpacity>
 
       {/* Sign In Button */}
