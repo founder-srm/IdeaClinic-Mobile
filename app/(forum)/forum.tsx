@@ -42,6 +42,7 @@ export default function ForumPage() {
     }
     try {
       const userProfile = await getProfileById(user.id);
+      console.log('User profile:', userProfile);
       setProfile(userProfile);
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -141,7 +142,9 @@ export default function ForumPage() {
   // Profile Data
   const profileData = {
     color: COLORS.dark.neutral,
-    image: profile?.avatar_url || 'https://via.placeholder.com/100',
+    image:
+      profile?.avatar_url ||
+      'https://rzyymqwpkbvqhzkyvbsx.supabase.co/storage/v1/object/public/avatars/users/user_acc.png',
     author: profile?.full_name || profile?.username || user?.email || 'Forum Member',
     about:
       profile?.bio || `${profile?.title ?? ''} at ${profile?.dept ?? ''}`.trim() || 'Forum Member',
@@ -154,7 +157,7 @@ export default function ForumPage() {
       title={profileData.author}
       subtitle={profileData.about}
       onLogout={handleLogout}
-      onSettings={() => router.push('/settings')}>
+      onSettings={user.id}>
       {/* Search Bar UI */}
       <View className="relative w-full p-2">
         {isSearchActive ? (
