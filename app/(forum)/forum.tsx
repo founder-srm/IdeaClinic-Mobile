@@ -1,6 +1,14 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { View, ScrollView, Alert } from 'react-native';
+import {
+  View,
+  ScrollView,
+  Alert,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
 
 import { getProfileById } from '~/actions/forum/profile';
 import { Container } from '~/components/Container';
@@ -20,29 +28,33 @@ export default function ForumPage() {
   const [loading, setLoading] = useState(true);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [query, setQuery] = useState('');
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const signOut = UseSignOut();
 
-  useEffect(() => {
-    async function fetchProfile() {
-      if (isAuthenticated && user?.id) {
-        try {
-          const userProfile = await getProfileById(user.id);
-          setProfile(userProfile);
-        } catch (error) {
-          console.error('Error fetching profile:', error);
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setLoading(false);
-      }
+  // Fetch user profile
+  const fetchProfile = async () => {
+    if (!isAuthenticated || !user?.id) {
+      setLoading(false);
+      return;
     }
+    try {
+      const userProfile = await getProfileById(user.id);
+      setProfile(userProfile);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchProfile();
   }, [isAuthenticated, user?.id]);
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
       { text: 'Cancel', style: 'cancel' },
       {
@@ -56,13 +68,14 @@ export default function ForumPage() {
   };
 
   const handleSearch = async (query: string) => {
+    if (!query.trim()) return;
+
     setIsSearching(true);
     try {
-      // Example: Search posts by title or content
       const { data, error } = await supabase
         .from('posts')
         .select('*')
-        .or(`title.ilike.%${query}%,content.ilike.%${query}%`)
+        .textSearch('title,content', query, { type: 'websearch', config: 'english' })
         .limit(10);
 
       if (error) throw error;
@@ -73,6 +86,27 @@ export default function ForumPage() {
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      if (isSearchActive) {
+        await handleSearch(query);
+      } else {
+        await fetchProfile();
+      }
+    } catch (error) {
+      console.error('Refresh error:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleBack = () => {
+    setIsSearchActive(false);
+    setQuery('');
+    setSearchResults([]);
   };
 
   if (!isAuthenticated || !user) {
@@ -104,14 +138,13 @@ export default function ForumPage() {
     );
   }
 
-  // Build profile data from both user and profile information
+  // Profile Data
   const profileData = {
     color: COLORS.dark.neutral,
     image: profile?.avatar_url || 'https://via.placeholder.com/100',
-    author: profile?.full_name || profile?.username || user?.id || 'User',
+    author: profile?.full_name || profile?.username || user?.email || 'Forum Member',
     about:
-      profile?.bio ||
-      (profile?.title && profile?.dept ? `${profile.title} at ${profile.dept}` : 'Forum Member'),
+      profile?.bio || `${profile?.title ?? ''} at ${profile?.dept ?? ''}`.trim() || 'Forum Member',
   };
 
   return (
@@ -121,9 +154,45 @@ export default function ForumPage() {
       title={profileData.author}
       subtitle={profileData.about}
       onLogout={handleLogout}
-      onSettings={user?.id}
-      onSearch={handleSearch}>
-      <ScrollView className="flex-1">
+      onSettings={() => router.push('/settings')}>
+      {/* Search Bar UI */}
+      <View className="relative w-full p-2">
+        {isSearchActive ? (
+          <View className="flex-row items-center gap-2 rounded-2xl bg-gray-100 px-3 py-2">
+            {/* Back Button */}
+            <TouchableOpacity onPress={handleBack}>
+              <Text className="text-gray-600">←</Text>
+            </TouchableOpacity>
+            {/* Search Input */}
+            <TextInput
+              className="flex-1 text-base"
+              placeholder="Search forum..."
+              value={query}
+              onChangeText={setQuery}
+              onSubmitEditing={() => handleSearch(query)}
+              autoFocus
+            />
+            {/* Clear Input Button */}
+            {isSearching ? (
+              <ActivityIndicator size="small" color="gray" />
+            ) : query.length > 0 ? (
+              <TouchableOpacity onPress={() => setQuery('')}>
+                <Text className="text-gray-500">✖</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        ) : (
+          <TouchableOpacity
+            onPress={() => setIsSearchActive(true)}
+            className="flex-row items-center gap-2 rounded-2xl bg-gray-200 px-3 py-2">
+            <Text className="text-gray-600">🔍 Search...</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      <ScrollView
+        className="flex-1"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         <View className="flex gap-4 p-4">
           {isSearching ? (
             <Text className="text-center text-lg">Searching...</Text>
