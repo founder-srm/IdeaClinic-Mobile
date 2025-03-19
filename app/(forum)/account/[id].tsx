@@ -6,7 +6,7 @@ import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } fr
 import { fetchUserProfile, ProfileData } from '~/actions/settings/account';
 import { Container } from '~/components/Container';
 import { UseSignOut } from '~/hooks/useSignOut';
-import { useStore } from "~/store/store";
+import { useStore } from '~/store/store';
 
 export default function AccountPage() {
   const router = useRouter();
