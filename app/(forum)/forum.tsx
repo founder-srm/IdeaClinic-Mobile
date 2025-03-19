@@ -16,6 +16,7 @@ import { EnhancedAvatarHeader } from '~/components/EnhancedAvatarHeader';
 import ForumPostsList from '~/components/ForumPostsList';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
+import type { Database } from '~/database.types';
 import { UseSignOut } from '~/hooks/useSignOut';
 import { useUser } from '~/hooks/useUser';
 import { COLORS } from '~/theme/colors';
@@ -24,9 +25,13 @@ import { supabase } from '~/utils/supabase';
 export default function ForumPage() {
   const { isAuthenticated, user } = useUser();
   const router = useRouter();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Database['public']['Tables']['profiles']['Row'] | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<
+    Database['public']['Tables']['posts']['Row'][]
+  >([]);
   const [isSearching, setIsSearching] = useState(false);
   const [query, setQuery] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
@@ -51,9 +56,10 @@ export default function ForumPage() {
     }
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     fetchProfile();
-  }, [isAuthenticated, user?.id]);
+  }, []);
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [

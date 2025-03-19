@@ -18,6 +18,7 @@
     "@expo/react-native-action-sheet": "^4.1.0",
     "@expo/vector-icons": "^14.0.0",
     "@gorhom/bottom-sheet": "^5.1.1",
+    "@novu/react-native": "^2.6.8",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-community/datetimepicker": "8.2.0",
     "@react-native-community/slider": "4.5.5",
@@ -26,6 +27,7 @@
     "@rn-primitives/alert-dialog": "^1.1.0",
     "@rn-primitives/avatar": "^1.1.0",
     "@rn-primitives/label": "^1.1.0",
+    "@rn-primitives/popover": "^1.1.0",
     "@rn-primitives/select": "^1.1.0",
     "@rn-primitives/separator": "^1.1.0",
     "@rn-primitives/slot": "^1.1.0",
@@ -77,6 +79,7 @@
     "ajv": "^8.12.0",
     "eslint": "^8.57.0",
     "eslint-config-universe": "^12.0.1",
+    "expo-atlas": "^0.4.0",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "typescript": "~5.3.3"
