@@ -154,7 +154,7 @@ export default function ForumPage() {
       title={profileData.author}
       subtitle={profileData.about}
       onLogout={handleLogout}
-      onSettings={() => router.push('/settings')}>
+      onSettings={() => router.push({ pathname: '/settings', params: { userId: user?.id } })}>
       {/* Search Bar UI */}
       <View className="relative w-full p-2">
         {isSearchActive ? (

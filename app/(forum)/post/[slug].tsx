@@ -101,6 +101,15 @@ export default function PostPage() {
     }
   }, [showComments]);
 
+  const navigateToUserProfile = () => {
+    console.log("Navigating to profile with ID:", post?.creator_id);
+    if (post?.creator_id) {
+      router.push(`/account/${post.creator_id}`);
+    } else {
+      console.log("Creator ID is missing");
+    }
+  };
+
   // Handle sheet changes callback
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
@@ -289,20 +298,11 @@ export default function PostPage() {
     );
   };
 
-  const navigateToUserProfile = () => {
-    if (post?.creator_id) {
-      router.push(`/account/${post.creator_id}`);
-    }
-  };
-
   const renderContent = (content: string) => {
     // Create a temporary div to parse HTML content
     const parseHTML = (htmlString: string) => {
-      // Simple HTML tag parsing using regex
-      // Find all HTML tags and their content
       const elements: { tag: string; content: string; attrs?: { [key: string]: string } }[] = [];
 
-      // Process the HTML content
       let remainingContent = htmlString.trim();
 
       while (remainingContent.length > 0) {
