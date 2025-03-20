@@ -213,7 +213,7 @@ export default function AccountPage() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         {/* Profile section */}
         <View
-          className="mx-4 mb-4 mt-16 items-center rounded-lg pb-6 pt-10 shadow-sm"
+          className="mx-4 mb-4 mt-[7rem] items-center rounded-lg pb-6 pt-10 shadow-sm"
           style={{ backgroundColor: COLORS.dark.root }}>
           <View className="relative">
             <Image
