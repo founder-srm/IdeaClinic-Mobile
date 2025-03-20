@@ -16,6 +16,7 @@ import { EnhancedAvatarHeader } from '~/components/EnhancedAvatarHeader';
 import ForumPostsList from '~/components/ForumPostsList';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
+import type { Database } from '~/database.types';
 import { UseSignOut } from '~/hooks/useSignOut';
 import { useUser } from '~/hooks/useUser';
 import { COLORS } from '~/theme/colors';
@@ -24,9 +25,13 @@ import { supabase } from '~/utils/supabase';
 export default function ForumPage() {
   const { isAuthenticated, user } = useUser();
   const router = useRouter();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Database['public']['Tables']['profiles']['Row'] | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<
+    Database['public']['Tables']['posts']['Row'][]
+  >([]);
   const [isSearching, setIsSearching] = useState(false);
   const [query, setQuery] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
@@ -42,6 +47,7 @@ export default function ForumPage() {
     }
     try {
       const userProfile = await getProfileById(user.id);
+      console.log('User profile:', userProfile);
       setProfile(userProfile);
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -50,9 +56,10 @@ export default function ForumPage() {
     }
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     fetchProfile();
-  }, [isAuthenticated, user?.id]);
+  }, []);
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -141,7 +148,9 @@ export default function ForumPage() {
   // Profile Data
   const profileData = {
     color: COLORS.dark.neutral,
-    image: profile?.avatar_url || 'https://via.placeholder.com/100',
+    image:
+      profile?.avatar_url ||
+      'https://rzyymqwpkbvqhzkyvbsx.supabase.co/storage/v1/object/public/avatars/users/user_acc.png',
     author: profile?.full_name || profile?.username || user?.email || 'Forum Member',
     about:
       profile?.bio || `${profile?.title ?? ''} at ${profile?.dept ?? ''}`.trim() || 'Forum Member',
@@ -154,7 +163,7 @@ export default function ForumPage() {
       title={profileData.author}
       subtitle={profileData.about}
       onLogout={handleLogout}
-      onSettings={() => router.push({ pathname: '/settings', params: { userId: user?.id } })}>
+      onSettings={user.id}>
       {/* Search Bar UI */}
       <View className="relative w-full p-2">
         {isSearchActive ? (

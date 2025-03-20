@@ -1,8 +1,10 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { NovuProvider } from '@novu/react-native';
 import * as NavigationBar from 'expo-navigation-bar';
 import { useRouter } from 'expo-router';
-import React, { useState, useEffect, useRef } from 'react';
+import type React from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   View,
   Image,
@@ -13,6 +15,7 @@ import {
   Keyboard,
 } from 'react-native';
 
+import NovuInbox from './NovuInbox';
 import { Avatar, AvatarFallback, AvatarImage } from './nativewindui/Avatar';
 import { Button } from './nativewindui/Button';
 import { Text } from './nativewindui/Text';
@@ -20,6 +23,7 @@ import { Input } from './ui/input';
 
 interface EnhancedAvatarHeaderProps {
   backgroundColor?: string;
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   image?: any;
   title?: string;
   subtitle?: string;
@@ -129,6 +133,7 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
   }, []);
 
   // Add keyboard listener to hide search bar when keyboard is dismissed
+  // biome-ignore lint/correctness/useExhaustiveDependencies: rip
   useEffect(() => {
     const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
       if (showSearchBar) {
@@ -184,7 +189,7 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
   const searchBarStyle = {
     flex: searchBarWidth,
     opacity: searchBarOpacity,
-    position: 'absolute' as 'absolute',
+    position: 'absolute' as const,
     left: 50,
     right: 50,
     zIndex: 10,
@@ -197,14 +202,19 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
         {...panResponder.panHandlers}
         className="pb-0 pt-10">
         <View className="flex-row items-center justify-between px-4 py-2">
-          <TouchableOpacity onPress={onLogout} className="z-20 p-2">
+          {/* <TouchableOpacity onPress={onLogout} className="z-20 p-2">
             <Image
               source={require('../assets/icons/logout.png')}
               className="h-6 w-6"
               style={{ tintColor: 'white' }}
             />
-          </TouchableOpacity>
-
+          </TouchableOpacity> */}
+          <NovuProvider
+            // biome-ignore lint/style/noNonNullAssertion: its always gonna be there in this page
+            subscriberId={onSettings!} // onSettings is user id
+            applicationIdentifier="UnWOs2G6SZhx">
+            <NovuInbox />
+          </NovuProvider>
           <Animated.View
             style={searchBarStyle}
             className="rounded-lg bg-background bg-opacity-20 px-2">

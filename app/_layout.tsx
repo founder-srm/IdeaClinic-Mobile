@@ -42,6 +42,7 @@ export default function Layout() {
     'Onest-Thin': require('../assets/fonts/Onest-Thin.ttf'),
   });
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     async function prepare() {
       try {
@@ -67,6 +68,7 @@ export default function Layout() {
     prepare();
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (loaded || error || appIsReady) {
       SplashScreen.hideAsync();

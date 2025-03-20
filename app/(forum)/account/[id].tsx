@@ -84,6 +84,7 @@ const getUserId = (params: Record<string, any>, currentId: string | null): strin
       : currentId; // Default to current user's ID as fallback
 };
 
+
 export default function AccountPage() {
   const router = useRouter();
   const params = useLocalSearchParams();
