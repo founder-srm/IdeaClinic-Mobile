@@ -65,6 +65,18 @@ export default function PostsProtectedLayout() {
           headerBackVisible: true,
         }}
       />
+      <Stack.Screen
+        name="about"
+        options={{
+          headerShown: true,
+          animation: 'slide_from_right',
+          headerTitle: 'About',
+          headerTransparent: true,
+          headerBlurEffect: 'dark',
+          headerTintColor: 'black',
+          headerBackVisible: true,
+        }}
+      />
     </Stack>
   );
 }
