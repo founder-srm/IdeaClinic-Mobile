@@ -262,7 +262,7 @@ export default function SettingsPage() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1"
+      className="flex-1 mt-6"
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
       <ScrollView
         ref={scrollViewRef}
