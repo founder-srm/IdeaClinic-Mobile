@@ -1,7 +1,7 @@
 import { FontAwesome6 } from '@expo/vector-icons';
 import { Link, router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Animated, TouchableOpacity } from 'react-native';
+import { Animated, TouchableOpacity, View } from 'react-native';
 
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';

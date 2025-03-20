@@ -1,10 +1,11 @@
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import moment from 'moment';
-import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, StyleSheet, Image, ToastAndroid } from 'react-native';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { Image, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
 
-import { Tables } from '../database.types';
+import type { Tables } from '../database.types';
 import { Text } from './nativewindui/Text';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 

@@ -1,21 +1,21 @@
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { FlashList } from '@shopify/flash-list';
-import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  Image,
-  ScrollView,
   ActivityIndicator,
-  ToastAndroid,
+  Image,
   KeyboardAvoidingView,
-  Platform,
-  TextInput,
-  Pressable,
   Linking,
+  Platform,
+  Pressable,
+  ScrollView,
   Share,
+  Text,
+  TextInput,
+  ToastAndroid,
+  View,
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -301,7 +301,11 @@ export default function PostPage() {
   const renderContent = (content: string) => {
     // Create a temporary div to parse HTML content
     const parseHTML = (htmlString: string) => {
-      const elements: { tag: string; content: string; attrs?: { [key: string]: string } }[] = [];
+      const elements: {
+        tag: string;
+        content: string;
+        attrs?: { [key: string]: string };
+      }[] = [];
 
       let remainingContent = htmlString.trim();
 
@@ -341,7 +345,11 @@ export default function PostPage() {
 
     // Render elements recursively
     const renderElement = (
-      element: { tag: string; content: string; attrs?: { [key: string]: string } },
+      element: {
+        tag: string;
+        content: string;
+        attrs?: { [key: string]: string };
+      },
       index: number | string
     ) => {
       switch (element.tag.toLowerCase()) {

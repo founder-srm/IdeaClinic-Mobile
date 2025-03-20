@@ -1,4 +1,4 @@
-import { Database } from '~/database.types';
+import type { Database } from '~/database.types';
 import { supabase } from '~/utils/supabase';
 
 /**

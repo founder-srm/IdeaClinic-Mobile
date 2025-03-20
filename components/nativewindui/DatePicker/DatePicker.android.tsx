@@ -1,5 +1,6 @@
-import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import * as React from 'react';
+import type DateTimePicker from '@react-native-community/datetimepicker';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import type * as React from 'react';
 import { View } from 'react-native';
 
 import { Button } from '~/components/nativewindui/Button';

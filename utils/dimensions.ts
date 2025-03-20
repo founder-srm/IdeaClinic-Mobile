@@ -8,12 +8,14 @@ const baseHeight = 812; // Standard iPhone height
 
 // Scaling functions
 export const wp = (widthPercent: number) => {
-  const elemWidth = typeof widthPercent === 'number' ? widthPercent : parseFloat(widthPercent);
+  const elemWidth =
+    typeof widthPercent === 'number' ? widthPercent : Number.parseFloat(widthPercent);
   return PixelRatio.roundToNearestPixel((SCREEN_WIDTH * elemWidth) / 100);
 };
 
 export const hp = (heightPercent: number) => {
-  const elemHeight = typeof heightPercent === 'number' ? heightPercent : parseFloat(heightPercent);
+  const elemHeight =
+    typeof heightPercent === 'number' ? heightPercent : Number.parseFloat(heightPercent);
   return PixelRatio.roundToNearestPixel((SCREEN_HEIGHT * elemHeight) / 100);
 };
 

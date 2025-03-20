@@ -1,16 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { Tables } from 'database.types';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Image,
+  RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
-  ActivityIndicator,
-  RefreshControl,
 } from 'react-native';
 
 import { Container } from '~/components/Container';
@@ -355,7 +355,10 @@ export default function AccountPage() {
 
             <TouchableOpacity
               className="flex-row items-center px-5 py-4"
-              style={{ borderBottomWidth: 1, borderBottomColor: COLORS.dark.card }}
+              style={{
+                borderBottomWidth: 1,
+                borderBottomColor: COLORS.dark.card,
+              }}
               onPress={() => Alert.alert('Coming soon', 'This feature is not yet available.')}>
               <Ionicons name="sync-outline" size={22} color={COLORS.dark.accent} className="mr-3" />
               <Text style={{ color: COLORS.dark.neutral }}>Sync account</Text>

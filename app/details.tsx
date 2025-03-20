@@ -8,7 +8,7 @@ import { Link } from 'expo-router';
 import * as StoreReview from 'expo-store-review';
 import { cssInterop } from 'nativewind';
 import * as React from 'react';
-import { Linking, ScrollView, useWindowDimensions, View } from 'react-native';
+import { Linking, ScrollView, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';

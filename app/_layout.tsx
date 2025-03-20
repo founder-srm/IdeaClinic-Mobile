@@ -99,6 +99,7 @@ export default function Layout() {
           <NavThemeProvider value={NAV_THEME[colorScheme]}>
             <ActionSheetProvider>
               <Stack
+                initialRouteName="(forum)"
                 screenOptions={{
                   headerRight: () => <ThemeToggle />,
                 }}>

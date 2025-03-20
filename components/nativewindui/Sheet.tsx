@@ -1,6 +1,6 @@
 import {
   BottomSheetBackdrop,
-  BottomSheetBackdropProps,
+  type BottomSheetBackdropProps,
   BottomSheetModal,
 } from '@gorhom/bottom-sheet';
 import * as React from 'react';

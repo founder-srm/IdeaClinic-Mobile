@@ -3,21 +3,21 @@ import * as React from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Pressable,
-  View,
-  ToastAndroid,
-  ScrollView,
+  Animated,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
-  Animated,
+  Pressable,
+  ScrollView,
+  ToastAndroid,
+  View,
 } from 'react-native';
 
 import {
+  type ProfileData,
   fetchUserProfile,
   updateUserProfile,
   uploadUserAvatar,
-  ProfileData,
 } from '~/actions/settings/account';
 import { changePassword } from '~/actions/settings/password';
 import { Container } from '~/components/Container';

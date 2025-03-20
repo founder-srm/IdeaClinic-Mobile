@@ -71,7 +71,7 @@ export async function updateUserProfile(profileData: ProfileData) {
 /**
  * Upload user avatar image
  */
-export async function uploadUserAvatar(base64Image: string, fileExt: string = 'png') {
+export async function uploadUserAvatar(base64Image: string, fileExt = 'png') {
   try {
     const user = useStore.getState().user;
 

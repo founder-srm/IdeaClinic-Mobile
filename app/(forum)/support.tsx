@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as React from 'react';
-import { ScrollView, Text, TouchableOpacity, View, Linking } from 'react-native';
+import { Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 import { Container } from '~/components/Container';
 import { COLORS } from '~/theme/colors';

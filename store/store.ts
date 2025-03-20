@@ -1,4 +1,4 @@
-import { AuthError, Session, User } from '@supabase/supabase-js';
+import type { AuthError, Session, User } from '@supabase/supabase-js';
 import { create } from 'zustand';
 
 import { supabase } from '../utils/supabase';
@@ -43,7 +43,12 @@ export const useStore = create<AuthState & BearState>((set) => ({
         set({ authError: error, authSuccess: false });
         return { success: false, error };
       }
-      set({ session: data.session, user: data.user, authSuccess: true, authError: null });
+      set({
+        session: data.session,
+        user: data.user,
+        authSuccess: true,
+        authError: null,
+      });
       return { success: true };
     } catch (error) {
       set({ authError: error as AuthError, authSuccess: false });
@@ -60,7 +65,12 @@ export const useStore = create<AuthState & BearState>((set) => ({
         set({ authError: error, authSuccess: false });
         return { success: false, error };
       }
-      set({ session: data.session, user: data.user, authSuccess: true, authError: null });
+      set({
+        session: data.session,
+        user: data.user,
+        authSuccess: true,
+        authError: null,
+      });
       return { success: true };
     } catch (error) {
       set({ authError: error as AuthError, authSuccess: false });

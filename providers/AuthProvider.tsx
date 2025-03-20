@@ -1,5 +1,6 @@
 import { useRouter, useSegments } from 'expo-router';
-import React, { useEffect } from 'react';
+import type React from 'react';
+import { useEffect } from 'react';
 
 import { useUser } from '../hooks/useUser';
 import { useStore } from '../store/store';
@@ -36,11 +37,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const inAuthGroup = segments[0] === '(auth)';
     const inProtectedGroup = segments[0] === '(forum)' || segments[0] === '(settings)';
+    const isRootRoute = segments[0] === '+not-found';
 
     console.log('[Navigation]', {
       segments,
       inAuthGroup,
       inProtectedGroup,
+      isRootRoute,
       isAuthenticated,
     });
 
@@ -49,6 +52,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.replace('/(auth)/signup');
     } else if (session && inAuthGroup) {
       // If authenticated and trying to access auth routes
+      router.replace('/(forum)/forum');
+    } else if (session && isRootRoute) {
+      // If authenticated and on the root route, redirect to forum
       router.replace('/(forum)/forum');
     }
   }, [session, segments]);

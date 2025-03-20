@@ -1,13 +1,13 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  View,
-  ScrollView,
+  ActivityIndicator,
   Alert,
+  RefreshControl,
+  ScrollView,
   TextInput,
   TouchableOpacity,
-  ActivityIndicator,
-  RefreshControl,
+  View,
 } from 'react-native';
 
 import { getProfileById } from '~/actions/forum/profile';
@@ -82,7 +82,10 @@ export default function ForumPage() {
       const { data, error } = await supabase
         .from('posts')
         .select('*')
-        .textSearch('title,content', query, { type: 'websearch', config: 'english' })
+        .textSearch('title,content', query, {
+          type: 'websearch',
+          config: 'english',
+        })
         .limit(10);
 
       if (error) throw error;

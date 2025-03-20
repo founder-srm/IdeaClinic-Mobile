@@ -3,7 +3,7 @@ import { useNotifications } from '@novu/react-native';
 import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { View, Text, RefreshControl, Platform, Pressable, ScrollView } from 'react-native';
+import { Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActivityIndicator } from './nativewindui/ActivityIndicator';
@@ -27,7 +27,10 @@ interface NotificationNovu {
   // channelType: ChannelType;
   tags?: string[];
   // data?: Record<string, unknown>;
-  redirect?: { url: string; target?: '_self' | '_blank' | '_parent' | '_top' | '_unfencedTop' };
+  redirect?: {
+    url: string;
+    target?: '_self' | '_blank' | '_parent' | '_top' | '_unfencedTop';
+  };
 }
 
 const parseNotificationContent = (htmlContent: string) => {

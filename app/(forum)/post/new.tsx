@@ -1,14 +1,14 @@
 import { useRouter } from 'expo-router';
 import { type SetStateAction, useState } from 'react';
 import {
-  View,
-  Text,
-  ScrollView,
   ActivityIndicator,
-  ToastAndroid,
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
+  Text,
+  ToastAndroid,
+  View,
 } from 'react-native';
 import uuid from 'react-native-uuid';
 
@@ -53,8 +53,16 @@ export default function PostCreationPage() {
     { value: 'Question', label: 'Question', color: '#C776FF' },
     { value: 'Tutorial', label: 'Tutorial', color: '#9D38BD' },
     { value: 'Success Story', label: 'Success Story', color: '#28A745' },
-    { value: 'Open Ended Discussion', label: 'Open Ended Discussion', color: '#FFA500' },
-    { value: 'Professor Input Needed', label: 'Professor Input Needed', color: '#9933CC' },
+    {
+      value: 'Open Ended Discussion',
+      label: 'Open Ended Discussion',
+      color: '#FFA500',
+    },
+    {
+      value: 'Professor Input Needed',
+      label: 'Professor Input Needed',
+      color: '#9933CC',
+    },
     { value: 'Student Project', label: 'Student Project', color: '#FFD700' },
     { value: 'Other', label: 'Other', color: '#CCCCCC' },
   ];

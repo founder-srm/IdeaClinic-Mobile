@@ -1,10 +1,12 @@
+import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Animated } from 'react-native';
+import { Animated, ToastAndroid, View } from 'react-native';
 
 import IntroScreen from '../components/IntroScreen';
 
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
+import { supabase } from '~/utils/supabase';
 
 const model1 = require('../assets/model1.png');
 
@@ -12,6 +14,24 @@ export default function WelcomeScreen() {
   const slideAnim = useRef(new Animated.Value(50)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [showScreen2, setShowScreen2] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    async function prepare() {
+      try {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session) {
+            router.replace('/(forum)/forum');
+            ToastAndroid.show('Welcome back!', ToastAndroid.SHORT);
+          }
+        });
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    prepare();
+  }, []);
 
   useEffect(() => {
     Animated.parallel([

@@ -1,7 +1,7 @@
 import * as Slot from '@rn-primitives/slot';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { type VariantProps, cva } from 'class-variance-authority';
 import * as React from 'react';
-import { Platform, Pressable, PressableProps, View, ViewStyle } from 'react-native';
+import { Platform, Pressable, type PressableProps, View, type ViewStyle } from 'react-native';
 
 import { TextClassContext } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
@@ -73,9 +73,9 @@ function convertToRGBA(rgb: string, opacity: number): string {
   if (!rgbValues || rgbValues.length !== 3) {
     throw new Error('Invalid RGB color format');
   }
-  const red = parseInt(rgbValues[0], 10);
-  const green = parseInt(rgbValues[1], 10);
-  const blue = parseInt(rgbValues[2], 10);
+  const red = Number.parseInt(rgbValues[0], 10);
+  const green = Number.parseInt(rgbValues[1], 10);
+  const blue = Number.parseInt(rgbValues[2], 10);
   if (opacity < 0 || opacity > 1) {
     throw new Error('Opacity must be a number between 0 and 1');
   }
@@ -84,14 +84,26 @@ function convertToRGBA(rgb: string, opacity: number): string {
 
 const ANDROID_RIPPLE = {
   dark: {
-    primary: { color: convertToRGBA(COLORS.dark.grey3, 0.4), borderless: false },
-    secondary: { color: convertToRGBA(COLORS.dark.grey5, 0.8), borderless: false },
+    primary: {
+      color: convertToRGBA(COLORS.dark.grey3, 0.4),
+      borderless: false,
+    },
+    secondary: {
+      color: convertToRGBA(COLORS.dark.grey5, 0.8),
+      borderless: false,
+    },
     plain: { color: convertToRGBA(COLORS.dark.grey5, 0.8), borderless: false },
     tonal: { color: convertToRGBA(COLORS.dark.grey5, 0.8), borderless: false },
   },
   light: {
-    primary: { color: convertToRGBA(COLORS.light.primary, 0.4), borderless: false },
-    secondary: { color: convertToRGBA(COLORS.light.grey5, 0.4), borderless: false },
+    primary: {
+      color: convertToRGBA(COLORS.light.primary, 0.4),
+      borderless: false,
+    },
+    secondary: {
+      color: convertToRGBA(COLORS.light.grey5, 0.4),
+      borderless: false,
+    },
     plain: { color: convertToRGBA(COLORS.light.grey5, 0.4), borderless: false },
     tonal: { color: convertToRGBA(COLORS.light.grey6, 0.4), borderless: false },
   },

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Animated } from 'react-native';
+import { Animated, View } from 'react-native';
 
 import LearnScreen from './LearnScreen';
 

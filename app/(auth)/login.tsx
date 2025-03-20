@@ -1,8 +1,8 @@
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
-import { router, Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, View, ScrollView } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 
 import { AuthAlert } from '~/components/auth/AuthAlert';
@@ -62,7 +62,12 @@ export default function LoginPage() {
               <View className="p-8 pt-12">
                 <Image
                   source={require('~/assets/logo.png')}
-                  style={{ borderRadius: 8, width: 56, height: 56, marginBottom: 16 }}
+                  style={{
+                    borderRadius: 8,
+                    width: 56,
+                    height: 56,
+                    marginBottom: 16,
+                  }}
                   contentFit="cover"
                   transition={1000}
                   cachePolicy="memory-disk"

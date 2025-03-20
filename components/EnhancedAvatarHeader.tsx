@@ -4,15 +4,15 @@ import { NovuProvider } from '@novu/react-native';
 import * as NavigationBar from 'expo-navigation-bar';
 import { useRouter } from 'expo-router';
 import type React from 'react';
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
-  View,
-  Image,
-  TouchableOpacity,
-  StatusBar,
   Animated,
-  PanResponder,
+  Image,
   Keyboard,
+  PanResponder,
+  StatusBar,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import NovuInbox from './NovuInbox';
@@ -149,7 +149,9 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
   // Create a PanResponder for dragging
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: () => true,
-    onPanResponderMove: Animated.event([null, { dy: panY }], { useNativeDriver: false }),
+    onPanResponderMove: Animated.event([null, { dy: panY }], {
+      useNativeDriver: false,
+    }),
     onPanResponderRelease: (_, gestureState) => {
       // If dragged down more than 50px, collapse the header
       if (gestureState.dy > 50) {
