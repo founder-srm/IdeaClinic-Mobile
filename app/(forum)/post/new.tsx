@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { SetStateAction, useState } from 'react';
+import { type SetStateAction, useState } from 'react';
 import {
   View,
   Text,
@@ -74,6 +74,7 @@ export default function PostCreationPage() {
   const handleImageUploaded = (response: any) => {
     if (response && response.secure_url) {
       setCloudinaryUrl(response.secure_url);
+      console.log(response.secure_url)
       setCloudinaryResource(response);
       ToastAndroid.show('Image uploaded successfully!', ToastAndroid.SHORT);
     } else {
