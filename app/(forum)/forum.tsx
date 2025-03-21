@@ -1,14 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  RefreshControl,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, ScrollView, View, RefreshControl, ToastAndroid } from 'react-native';
 
 import { getProfileById } from '~/actions/forum/profile';
 import { Container } from '~/components/Container';
@@ -19,6 +11,7 @@ import { Text } from '~/components/nativewindui/Text';
 import type { Database } from '~/database.types';
 import { UseSignOut } from '~/hooks/useSignOut';
 import { useUser } from '~/hooks/useUser';
+import type { ForumPost } from '~/lib/types';
 import { COLORS } from '~/theme/colors';
 import { supabase } from '~/utils/supabase';
 
@@ -29,12 +22,9 @@ export default function ForumPage() {
     null
   );
   const [loading, setLoading] = useState(true);
-  const [searchResults, setSearchResults] = useState<
-    Database['public']['Tables']['posts']['Row'][]
-  >([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [query, setQuery] = useState('');
-  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [posts, setPosts] = useState<ForumPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const signOut = UseSignOut();
@@ -61,6 +51,60 @@ export default function ForumPage() {
     fetchProfile();
   }, []);
 
+  const fetchPosts = async () => {
+    try {
+      setIsLoading(true);
+
+      const { data, error } = await supabase
+        .from('posts')
+        .select(
+          `
+            *,
+            profiles:creator_id (
+              avatar_url,
+              full_name
+            )
+          `
+        )
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (data) {
+        const formattedPosts: ForumPost[] = data.map((post) => ({
+          ...post,
+          creator: post.profiles as { avatar_url: string; full_name: string },
+          likesCount: post.likes?.length ?? 0,
+          likes: post.likes ?? [], // Convert null to empty array
+          isLiked: post.likes?.includes(user?.id ?? '') ?? false,
+        }));
+
+        setPosts(formattedPosts);
+      }
+    } catch (err) {
+      console.error('Error fetching posts:', err);
+      setError('Failed to load posts');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: callback later
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      fetchPosts();
+    } catch (error) {
+      ToastAndroid.show(`Failed to refresh posts: ${error}`, ToastAndroid.SHORT);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
       { text: 'Cancel', style: 'cancel' },
@@ -72,51 +116,6 @@ export default function ForumPage() {
         },
       },
     ]);
-  };
-
-  const handleSearch = async (query: string) => {
-    if (!query.trim()) return;
-
-    setIsSearching(true);
-    try {
-      const { data, error } = await supabase
-        .from('posts')
-        .select('*')
-        .textSearch('title,content', query, {
-          type: 'websearch',
-          config: 'english',
-        })
-        .limit(10);
-
-      if (error) throw error;
-      setSearchResults(data || []);
-    } catch (error) {
-      console.error('Search error:', error);
-      Alert.alert('Error', 'Failed to perform search');
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    try {
-      if (isSearchActive) {
-        await handleSearch(query);
-      } else {
-        await fetchProfile();
-      }
-    } catch (error) {
-      console.error('Refresh error:', error);
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
-  const handleBack = () => {
-    setIsSearchActive(false);
-    setQuery('');
-    setSearchResults([]);
   };
 
   if (!isAuthenticated || !user) {
@@ -167,69 +166,19 @@ export default function ForumPage() {
       subtitle={profileData.about}
       onLogout={handleLogout}
       onSettings={user.id}>
-      {/* Search Bar UI */}
-      <View className="relative w-full p-2">
-        {isSearchActive ? (
-          <View className="flex-row items-center gap-2 rounded-2xl bg-gray-100 px-3 py-2">
-            {/* Back Button */}
-            <TouchableOpacity onPress={handleBack}>
-              <Text className="text-gray-600">←</Text>
-            </TouchableOpacity>
-            {/* Search Input */}
-            <TextInput
-              className="flex-1 text-base"
-              placeholder="Search forum..."
-              value={query}
-              onChangeText={setQuery}
-              onSubmitEditing={() => handleSearch(query)}
-              autoFocus
-            />
-            {/* Clear Input Button */}
-            {isSearching ? (
-              <ActivityIndicator size="small" color="gray" />
-            ) : query.length > 0 ? (
-              <TouchableOpacity onPress={() => setQuery('')}>
-                <Text className="text-gray-500">✖</Text>
-              </TouchableOpacity>
-            ) : null}
-          </View>
-        ) : (
-          <TouchableOpacity
-            onPress={() => setIsSearchActive(true)}
-            className="flex-row items-center gap-2 rounded-2xl bg-gray-200 px-3 py-2">
-            <Text className="text-gray-600">🔍 Search...</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
       <ScrollView
-        className="flex-1"
+        className="flex gap-4 p-4"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-        <View className="flex gap-4 p-4">
-          {isSearching ? (
-            <Text className="text-center text-lg">Searching...</Text>
-          ) : searchResults.length > 0 ? (
-            <>
-              <Text className="text-center text-xl font-semibold">Search Results</Text>
-              {searchResults.map((result) => (
-                <View key={result.id} className="rounded-lg bg-primary p-3">
-                  <Text className="font-bold text-white">{result.title}</Text>
-                  <Text className="mt-1 text-white text-opacity-80" numberOfLines={2}>
-                    {result.content}
-                  </Text>
-                </View>
-              ))}
-            </>
-          ) : (
-            <>
-              <Text className="text-center text-2xl font-semibold">Welcome to the Forum</Text>
-              <Button size="sm" onPress={() => router.push('/details')}>
-                <Text className="text-center">Component lib</Text>
-              </Button>
-              <ForumPostsList />
-            </>
-          )}
-        </View>
+        <Button size="sm" onPress={() => router.push('/details')}>
+          <Text className="text-center">Component lib</Text>
+        </Button>
+        <ForumPostsList
+          posts={posts}
+          isLoading={isLoading}
+          error={error}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+        />
       </ScrollView>
     </EnhancedAvatarHeader>
   );
