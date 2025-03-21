@@ -3,13 +3,6 @@ import { create } from 'zustand';
 
 import { supabase } from '../utils/supabase';
 
-export interface BearState {
-  bears: number;
-  increasePopulation: () => void;
-  removeAllBears: () => void;
-  updateBears: (newBears: number) => void;
-}
-
 interface AuthState {
   session: Session | null;
   user: User | null;
@@ -22,11 +15,7 @@ interface AuthState {
   clearAuthStatus: () => void;
 }
 
-export const useStore = create<AuthState & BearState>((set) => ({
-  bears: 0,
-  increasePopulation: () => set((state) => ({ bears: state.bears + 1 })),
-  removeAllBears: () => set({ bears: 0 }),
-  updateBears: (newBears) => set({ bears: newBears }),
+export const useStore = create<AuthState>((set) => ({
   session: null,
   user: null,
   loading: true,
@@ -83,7 +72,6 @@ export const useStore = create<AuthState & BearState>((set) => ({
   },
 }));
 
-// Add direct selectors for easier access in components
 export const useUser = () => useStore((state) => state.user);
 export const useSession = () => useStore((state) => state.session);
 export const useAuthStatus = () =>

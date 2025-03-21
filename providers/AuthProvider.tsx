@@ -34,6 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Navigation protection
+  // biome-ignore lint/correctness/useExhaustiveDependencies: lol
   useEffect(() => {
     const inAuthGroup = segments[0] === '(auth)';
     const inProtectedGroup = segments[0] === '(forum)' || segments[0] === '(settings)';
