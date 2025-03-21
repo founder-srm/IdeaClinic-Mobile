@@ -25,42 +25,11 @@ import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { Separator } from '~/components/ui/separator';
 import { useUser } from '~/hooks/useUser';
 import { cn } from '~/lib/cn';
+import type { Comment, Creator, Post } from '~/lib/types';
 import { COLORS } from '~/theme/colors';
 import { supabase } from '~/utils/supabase';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-interface Post {
-  id: string;
-  title: string;
-  content: string | null;
-  banner_url: string | null;
-  label: string;
-  label_color: string;
-  created_at: string;
-  likes: string[] | null;
-  creator_id: string | null;
-}
-
-interface Creator {
-  username: string;
-  avatar_url: string | null;
-  full_name: string | null;
-}
-
-interface Comment {
-  id: string;
-  content: string | null;
-  created_at: string;
-  creatorid: string | null;
-  likes: string[] | null;
-  postid: string | null;
-  creator: {
-    username: string | null;
-    avatar_url: string;
-    full_name: string | null;
-  } | null;
-}
 
 export default function PostPage() {
   const { slug } = useLocalSearchParams();
@@ -90,6 +59,7 @@ export default function PostPage() {
   const postIdRef = useRef<string | null>(null);
 
   // Update the toggleComments function to use the Sheet
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const toggleComments = useCallback(() => {
     if (showComments) {
       commentsSheetRef.current?.dismiss();
@@ -206,9 +176,8 @@ export default function PostPage() {
         // Get current likes for this comment
         const isLiked = comment.likes?.includes(userId) || false;
         const currentLikes = comment.likes || [];
-
         // Update likes array - add or remove user ID
-        let newLikes;
+        let newLikes: string[];
         if (isLiked) {
           newLikes = currentLikes.filter((id) => id !== userId);
         } else {
@@ -420,7 +389,9 @@ export default function PostPage() {
               {listItems.map((item, i) => {
                 if (item.tag.toLowerCase() === 'li') {
                   return (
-                    <View key={`${index}-${i}`} className="mb-1 flex-row">
+                    <View
+                      key={`${index}-ul-li-${item.content.substring(0, 10)}-${i}`}
+                      className="mb-1 flex-row">
                       <Text className="mr-2 text-base">•</Text>
                       <Text className="flex-1 text-base text-gray-700">{item.content}</Text>
                     </View>
@@ -439,7 +410,9 @@ export default function PostPage() {
               {orderedItems.map((item, i) => {
                 if (item.tag.toLowerCase() === 'li') {
                   return (
-                    <View key={`${index}-${i}`} className="mb-1 flex-row">
+                    <View
+                      key={`${index}-ol-li-${item.content.substring(0, 10)}-${i}`}
+                      className="mb-1 flex-row">
                       <Text className="mr-2 text-base">{i + 1}.</Text>
                       <Text className="flex-1 text-base text-gray-700">{item.content}</Text>
                     </View>
@@ -580,6 +553,7 @@ export default function PostPage() {
         } else {
           setError('Post not found');
         }
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       } catch (err: any) {
         console.error('Error fetching post details:', err);
         setError(err.message || 'Failed to load post details');
@@ -604,7 +578,7 @@ export default function PostPage() {
         .single();
 
       const currentLikes = currentPost?.likes || [];
-      let newLikes;
+      let newLikes: string[];
 
       if (isLiked) {
         newLikes = currentLikes.filter((id) => id !== userId);
@@ -620,6 +594,7 @@ export default function PostPage() {
 
       setIsLiked(!isLiked);
       setLikeCount(newLikes.length);
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } catch (err: any) {
       console.error('Error updating like:', err);
       ToastAndroid.show('Failed to update like', ToastAndroid.SHORT);
@@ -780,7 +755,7 @@ export default function PostPage() {
                         if (post) {
                           Share.share({
                             title: post.title,
-                            message: `Check out this post: ${post.title}`,
+                            message: `Check out this post: ${post.title} https://ideaclinic-forum.vercel.app/forum/post/${post.id}`,
                             url: `https://ideaclinic-forum.vercel.app/forum/post/${post.id}`,
                           }).catch((err) => console.error('Error sharing:', err));
                         }
