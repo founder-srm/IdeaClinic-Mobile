@@ -6,7 +6,20 @@ import { Container } from '~/components/Container';
 export default function NotFoundScreen() {
   return (
     <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
+      <Stack.Screen
+        options={{
+          title: 'Oops!',
+          headerShown: true,
+          headerBackButtonDisplayMode: 'minimal',
+          headerTitle: 'Settings',
+          headerTransparent: true,
+          headerBlurEffect: 'dark',
+          headerTintColor: 'black',
+          headerBackVisible: true,
+          presentation: 'fullScreenModal',
+          animation: 'slide_from_bottom',
+        }}
+      />
       <Container>
         <Text className={styles.title}>This screen doesn't exist.</Text>
         <Link href="/" className={styles.link}>
@@ -18,7 +31,7 @@ export default function NotFoundScreen() {
 }
 
 const styles = {
-  title: `text-xl font-bold`,
-  link: `mt-4 pt-4`,
-  linkText: `text-base text-[#2e78b7]`,
+  title: 'text-xl font-bold',
+  link: 'mt-4 pt-4',
+  linkText: 'text-base text-[#2e78b7]',
 };
