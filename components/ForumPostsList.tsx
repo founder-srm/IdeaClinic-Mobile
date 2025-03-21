@@ -1,25 +1,24 @@
+import { useActionSheet } from '@expo/react-native-action-sheet';
 import { FontAwesome } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import moment from 'moment';
 import type React from 'react';
-import { useEffect, useState } from 'react';
-import { Image, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import {
+  Image,
+  RefreshControl,
+  Share,
+  StyleSheet,
+  ToastAndroid,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
-import type { Tables } from '../database.types';
 import { patterns } from './PostPatterns';
 import { Text } from './nativewindui/Text';
 
+import type { ForumPost } from '~/lib/types';
 import { supabase } from '~/utils/supabase';
-
-// Define the Post type with additional properties
-type Post = Tables<'posts'> & {
-  creator?: {
-    avatar_url: string;
-    full_name: string;
-  };
-  likesCount: number;
-};
 
 // Define the label categories
 const LABEL_CATEGORIES = [
@@ -38,63 +37,32 @@ const LABEL_CATEGORIES = [
   'Other',
 ];
 
-const ForumPostsList: React.FC = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+type ForumPostsListProps = {
+  posts: ForumPost[];
+  isLoading: boolean;
+  error: string | null;
+  refreshing: boolean;
+  onRefresh: () => void;
+  userId?: string;
+};
 
+const ForumPostsList: React.FC<ForumPostsListProps> = ({
+  posts,
+  isLoading,
+  error,
+  refreshing,
+  onRefresh,
+  userId,
+}) => {
+  const { showActionSheetWithOptions } = useActionSheet();
   const router = useRouter();
 
-  // Fetch posts and creators data
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setIsLoading(true);
-
-        // Fetch posts with their creators
-        const { data, error } = await supabase
-          .from('posts')
-          .select(
-            `
-            *,
-            profiles:creator_id (
-              avatar_url,
-              full_name
-            )
-          `
-          )
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
-        // Transform data to match Post type
-        if (data) {
-          const formattedPosts: Post[] = data.map((post) => ({
-            ...post,
-            creator: post.profiles as { avatar_url: string; full_name: string },
-            likesCount: post.likes ? post.likes.length : 0,
-          }));
-
-          setPosts(formattedPosts);
-        }
-      } catch (err) {
-        console.error('Error fetching posts:', err);
-        setError('Failed to load posts');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchPosts();
-  }, []);
-
-  // Group posts by label
   const postsByLabel = LABEL_CATEGORIES.reduce(
     (acc, label) => {
       acc[label] = posts.filter((post) => post.label === label);
       return acc;
     },
-    {} as Record<string, Post[]>
+    {} as Record<string, ForumPost[]>
   );
 
   const calculateReadTime = (content: string): string => {
@@ -104,8 +72,7 @@ const ForumPostsList: React.FC = () => {
     return `${minutes} min read`;
   };
 
-  // Determine background color based on conditions
-  const determineBackgroundColor = (post: Post): string => {
+  const determineBackgroundColor = (post: ForumPost): string => {
     const readTime = post.content ? post.content.trim().split(/\s+/).length / 200 : 0;
 
     if (post.likesCount >= 10) return '#D2FF1F'; // High likes
@@ -125,12 +92,68 @@ const ForumPostsList: React.FC = () => {
     );
   };
 
-  // Render individual post card
-  const renderPostCard = ({ item, index }: { item: Post; index: number }) => (
+  const handleLongPress = (post: ForumPost) => {
+    const options = ['Like', 'Share', 'Cancel'];
+    const destructiveButtonIndex = 2;
+    showActionSheetWithOptions({ options, destructiveButtonIndex }, (index) => {
+      if (index === 0) {
+        toggleLike(post.id);
+      } else if (index === 1) {
+        Share.share({
+          title: post.title,
+          message: `Check out this post: ${post.title} https://ideaclinic-forum.vercel.app/forum/post/${post.id}`,
+          url: `https://ideaclinic-forum.vercel.app/forum/post/${post.id}`,
+        }).catch((err) => console.error('Error sharing:', err));
+      }
+    });
+  };
+
+  // Add like toggle function
+  const toggleLike = async (postId: string) => {
+    if (!userId) {
+      ToastAndroid.show('Please login to like posts', ToastAndroid.SHORT);
+      return;
+    }
+
+    const post = posts.find((p) => p.id === postId);
+    if (!post) return;
+
+    const isLiked = post.likes?.includes(userId);
+
+    try {
+      const { data: currentPost } = await supabase
+        .from('posts')
+        .select('likes')
+        .eq('id', postId)
+        .single();
+
+      const currentLikes = currentPost?.likes || [];
+      let newLikes: string[];
+
+      if (isLiked) {
+        newLikes = currentLikes.filter((id) => id !== userId);
+      } else {
+        newLikes = [...currentLikes, userId];
+      }
+
+      newLikes = newLikes.filter((id): id is string => id !== undefined);
+
+      const { error } = await supabase.from('posts').update({ likes: newLikes }).eq('id', postId);
+
+      if (error) throw error;
+
+      onRefresh();
+    } catch (err) {
+      console.error('Error updating like:', err);
+      ToastAndroid.show('Failed to update like', ToastAndroid.SHORT);
+    }
+  };
+
+  const renderPostCard = ({ item, index }: { item: ForumPost; index: number }) => (
     <TouchableOpacity
       style={[styles.cardContainer, { backgroundColor: determineBackgroundColor(item) }]}
       onPress={() => router.push(`/post/${item.id}`)}
-      onLongPress={() => ToastAndroid.show('more options coming soon', ToastAndroid.SHORT)}>
+      onLongPress={() => handleLongPress(item)}>
       <View className="relative p-3">
         {/* SVG Background */}
         {getSvgBackground(index)}
@@ -141,8 +164,15 @@ const ForumPostsList: React.FC = () => {
           <View className="flex-row justify-between">
             <Text className="flex-1 text-lg font-bold">{item.title}</Text>
             <View className="flex-row items-center">
-              <TouchableOpacity className="mr-1">
-                <Image source={require('../assets/icons/heart.png')} className="h-5 w-5" />
+              <TouchableOpacity
+                className="mr-1"
+                onPress={() => toggleLike(item.id)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                <FontAwesome
+                  name={item.isLiked ? 'heart' : 'heart-o'}
+                  size={20}
+                  color={item.isLiked ? '#FF4444' : '#666666'}
+                />
               </TouchableOpacity>
               <Text className="text-xs">{item.likesCount}</Text>
             </View>
@@ -225,31 +255,30 @@ const ForumPostsList: React.FC = () => {
   }
 
   return (
-    <View className="flex-1">
-      <FlashList
-        data={[...LABEL_CATEGORIES, 'all']}
-        renderItem={({ item }) => {
-          if (item === 'all') {
-            return (
-              <View className="mt-4">
-                <Text className="mb-2 ml-4 text-xl font-bold">All Posts</Text>
-                <FlashList
-                  data={posts}
-                  renderItem={renderPostCard}
-                  estimatedItemSize={250}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={styles.verticalList}
-                  numColumns={1}
-                />
-              </View>
-            );
-          }
-          return renderLabelSection(item);
-        }}
-        estimatedItemSize={350}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
+    <FlashList
+      data={[...LABEL_CATEGORIES, 'all']}
+      renderItem={({ item }) => {
+        if (item === 'all') {
+          return (
+            <View className="mt-4">
+              <Text className="mb-2 ml-4 text-xl font-bold">All Posts</Text>
+              <FlashList
+                data={posts}
+                renderItem={renderPostCard}
+                estimatedItemSize={250}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.verticalList}
+                numColumns={1}
+              />
+            </View>
+          );
+        }
+        return renderLabelSection(item);
+      }}
+      estimatedItemSize={350}
+      showsVerticalScrollIndicator={false}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+    />
   );
 };
 
