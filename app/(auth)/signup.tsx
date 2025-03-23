@@ -1,8 +1,16 @@
+import { MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  ToastAndroid,
+  View,
+  TouchableOpacity,
+} from 'react-native';
 import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 
 import { AuthAlert } from '~/components/auth/AuthAlert';
@@ -18,6 +26,7 @@ import { useStore } from '~/store/store';
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const signUp = useStore((state) => state.signUp);
 
   const { isKeyboardVisible, keyboardHeight } = useKeyboard();
@@ -26,10 +35,14 @@ export default function SignupPage() {
     try {
       const result = await signUp(email, password);
       if (result.success) {
+        ToastAndroid.show(
+          'Account created successfully! Fill in your info in settings!',
+          ToastAndroid.LONG
+        );
         router.replace('/(forum)/forum');
       }
     } catch (error) {
-      console.error('Sign up error:', error);
+      ToastAndroid.show(`Sign up error: ${error}`, ToastAndroid.LONG);
     }
   };
 
@@ -87,14 +100,25 @@ export default function SignupPage() {
                 <Label nativeID="password" className="text-primary">
                   Password
                 </Label>
-                <Input
-                  aria-label="Password"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry
-                  className="mb-6"
-                  placeholder="Choose a password"
-                />
+                <View className="relative">
+                  <Input
+                    aria-label="Password"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!showPassword}
+                    className="mb-6"
+                    placeholder="Choose a password"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3">
+                    <MaterialIcons
+                      name={showPassword ? 'visibility' : 'visibility-off'}
+                      size={24}
+                      color="#666"
+                    />
+                  </TouchableOpacity>
+                </View>
                 <Button onPress={handleSignUp} className="">
                   <Text className="font-semibold text-white">Sign Up</Text>
                 </Button>
