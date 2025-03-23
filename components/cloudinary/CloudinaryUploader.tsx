@@ -72,39 +72,42 @@ export default function CloudinaryUploader({
     });
   };
 
-  // const deleteFromCloudinary = async (publicIdToDelete: string): Promise<boolean> => {
-  //   // Using the Cloudinary API to delete images
-  //   const apiUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`;
+  const deleteFromCloudinary = async (publicIdToDelete: string): Promise<boolean> => {
+    const apiUrl = 'https://ideaclinic-cloudinary.vercel.app/delete/resource';
 
-  //   return new Promise((resolve, reject) => {
-  //     const xhr = new XMLHttpRequest();
-  //     xhr.open('POST', apiUrl);
-  //     xhr.setRequestHeader('Content-Type', 'application/json');
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', apiUrl);
+      xhr.setRequestHeader('Content-Type', 'application/json');
 
-  //     xhr.onload = () => {
-  //       const res = JSON.parse(xhr.response);
-  //       if (res.error) return reject(res.error);
-  //       resolve(res.result === 'ok');
-  //     };
+      xhr.onload = () => {
+        const res = JSON.parse(xhr.response);
+        if (res.error) return reject(res.error);
+        console.log('Cloudinary delete response:', res);
+        // Check the success status from the API response
+        if (res.status === 'success') {
+          console.log(res.message);
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      };
 
-  //     xhr.onerror = (error) => {
-  //       reject(error);
-  //     };
+      xhr.onerror = (error) => {
+        reject(error);
+      };
 
-  //     xhr.ontimeout = (error) => {
-  //       reject(new Error(`timeout: ${error}`));
-  //     };
+      xhr.ontimeout = (error) => {
+        reject(new Error(`timeout: ${error}`));
+      };
 
-  //     // Note: In production, you should use signed requests with API secret
-  //     // For this example, we'll assume you have a backend endpoint that handles the deletion
-  //     xhr.send(
-  //       JSON.stringify({
-  //         public_id: publicIdToDelete,
-  //         upload_preset: uploadPreset, // Some Cloudinary configurations might require this
-  //       })
-  //     );
-  //   });
-  // };
+      xhr.send(
+        JSON.stringify({
+          public_id: publicIdToDelete,
+        })
+      );
+    });
+  };
 
   const pickImage = async () => {
     // Check if we already have permission
@@ -159,36 +162,33 @@ export default function CloudinaryUploader({
   };
 
   const handleRemoveImage = async () => {
-    // if (publicId) {
-    //   setDeleting(true);
-    //   try {
-    //     // Attempt to delete the image from Cloudinary
-    //     const deleteResult = await deleteFromCloudinary(publicId);
+    if (publicId) {
+      setDeleting(true);
+      try {
+        const deleteResult = await deleteFromCloudinary(publicId);
 
-    //     if (deleteResult) {
-    //       ToastAndroid.show('Image removed from cloud', ToastAndroid.SHORT);
-    //     } else {
-    //       console.warn('Failed to delete image from Cloudinary');
-    //     }
+        if (deleteResult) {
+          ToastAndroid.show('Image removed from cloud', ToastAndroid.SHORT);
+        } else {
+          console.warn('Failed to delete image from Cloudinary');
+        }
 
-    //     // Regardless of cloud deletion result, update local state
-    //     setImageUri(null);
-    //     setPublicId(null);
-    //     onImageSelected(null);
-    //     onImageRemoved();
-    //   } catch (error) {
-    //     console.error('Error deleting image:', error);
-    //     ToastAndroid.show('Error removing image from cloud', ToastAndroid.LONG);
-    //   } finally {
-    //     setDeleting(false);
-    //   }
-    // } else {
-    //   // No public ID, just clear the local image
-    //   setImageUri(null);
-    //   onImageSelected(null);
-    //   onImageRemoved();
-    // }
-    ToastAndroid.show('Removing image from cloud is not yet possible', ToastAndroid.LONG);
+        setImageUri(null);
+        setPublicId(null);
+        onImageSelected(null);
+        onImageRemoved();
+      } catch (error) {
+        console.error('Error deleting image:', error);
+        ToastAndroid.show('Error removing image from cloud', ToastAndroid.LONG);
+      } finally {
+        setDeleting(false);
+      }
+    } else {
+      setImageUri(null);
+      onImageSelected(null);
+      onImageRemoved();
+    }
+    // ToastAndroid.show('Removing image from cloud is not yet possible', ToastAndroid.LONG);
   };
 
   return (

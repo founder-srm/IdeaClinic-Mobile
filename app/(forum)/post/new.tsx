@@ -80,7 +80,7 @@ export default function PostCreationPage() {
   };
 
   const handleImageUploaded = (response: any) => {
-    if (response && response.secure_url) {
+    if (response?.secure_url) {
       setCloudinaryUrl(response.secure_url);
       console.log(response.secure_url);
       setCloudinaryResource(response);
@@ -170,7 +170,7 @@ export default function PostCreationPage() {
             paddingBottom: isKeyboardVisible ? keyboardHeight / 2 : 0,
           }}
           keyboardShouldPersistTaps="handled">
-          <View className="mt-12 space-y-6 p-4">
+          <View className="mt-12 space-y-6 px-0 py-4">
             {/* Header */}
             <View className="m-6">
               <Text className="mt-1 text-sm text-gray-500">
@@ -178,7 +178,7 @@ export default function PostCreationPage() {
               </Text>
             </View>
 
-            <View className="overflow-hidden rounded-xl bg-card p-6 shadow-sm">
+            <View className="overflow-hidden rounded-xl bg-card px-4 py-6 shadow-sm">
               {/* Title Input */}
               <View className="mb-6">
                 <Text className="mb-2 text-sm font-semibold text-gray-700">Title</Text>
