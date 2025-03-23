@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { Tables } from 'database.types';
+import * as Application from 'expo-application';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import {
@@ -20,10 +21,8 @@ import { useStore } from '~/store/store';
 import { COLORS } from '~/theme/colors';
 import { supabase } from '~/utils/supabase';
 
-// Define the profile data type based on your actual schema
 type ProfileData = Tables<'profiles'>;
 
-// Replacement for the imported fetchUserProfile function
 const fetchUserProfile = async (): Promise<ProfileData | null> => {
   const {
     data: { user },
@@ -40,7 +39,6 @@ const fetchUserProfile = async (): Promise<ProfileData | null> => {
   return data;
 };
 
-// Modify the getUserId function to safely handle params.id
 // biome-ignore lint/suspicious/noExplicitAny: it is wat it is
 const getUserId = (params: Record<string, any>, currentId: string | null): string | null => {
   if (params.id && typeof params.id === 'string' && params.id.includes('function')) {
@@ -73,12 +71,6 @@ export default function AccountPage() {
 
   // Use the safer getUserId function to handle function references
   const userId = getUserId(params, currentUserId);
-
-  //  Debug logs
-  // console.log("Raw params:", JSON.stringify(params));
-  // console.log("Raw params.id:", params.id, typeof params.id);
-  // console.log("Raw cId:", cId, typeof cId);
-  // console.log("Fixed userId:", userId);
 
   const loadProfile = React.useCallback(async () => {
     try {
@@ -390,7 +382,9 @@ export default function AccountPage() {
         )}
 
         <View className="mb-6 items-center py-6">
-          <Text style={{ color: COLORS.dark.grey, fontSize: 12 }}>App Version 1.0.0</Text>
+          <Text style={{ color: COLORS.dark.grey, fontSize: 12 }}>
+            App Version: {Application.nativeApplicationVersion}{' '}
+          </Text>
         </View>
       </ScrollView>
     </Container>
