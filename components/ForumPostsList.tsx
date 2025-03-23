@@ -12,16 +12,19 @@ import {
   ToastAndroid,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from 'react-native';
 
+import { FilterBar } from './FilterBar';
 import { patterns } from './PostPatterns';
 import { Text } from './nativewindui/Text';
 
 import type { ForumPost } from '~/lib/types';
+import { useFilterStore } from '~/store/filterStore';
 import { supabase } from '~/utils/supabase';
 
 // Define the label categories
-const LABEL_CATEGORIES = [
+export const LABEL_CATEGORIES = [
   'Help Required',
   'New Idea',
   'Looking for Team',
@@ -48,7 +51,7 @@ type ForumPostsListProps = {
 
 const ForumPostsList: React.FC<ForumPostsListProps> = ({
   posts,
-  isLoading,
+  isLoading: externalLoading,
   error,
   refreshing,
   onRefresh,
@@ -56,20 +59,18 @@ const ForumPostsList: React.FC<ForumPostsListProps> = ({
 }) => {
   const { showActionSheetWithOptions } = useActionSheet();
   const router = useRouter();
+  const {
+    sortBy,
+    sortOrder,
+    selectedTags,
+    getTrendingScore,
+    isLoading: filterLoading,
+    calculateReadTime,
+  } = useFilterStore();
 
-  const postsByLabel = LABEL_CATEGORIES.reduce(
-    (acc, label) => {
-      acc[label] = posts.filter((post) => post.label === label);
-      return acc;
-    },
-    {} as Record<string, ForumPost[]>
-  );
-
-  const calculateReadTime = (content: string): string => {
-    if (!content) return '< 1 min read';
-    const words = content.trim().split(/\s+/).length;
-    const minutes = Math.ceil(words / 200);
-    return `${minutes} min read`;
+  const getReadTimeDisplay = (content: string): string => {
+    const minutes = calculateReadTime(content);
+    return minutes === 0 ? '< 1 min read' : `${minutes} min read`;
   };
 
   const determineBackgroundColor = (post: ForumPost): string => {
@@ -149,6 +150,45 @@ const ForumPostsList: React.FC<ForumPostsListProps> = ({
     }
   };
 
+  const getSortedAndFilteredPosts = (postsToSort: ForumPost[]) => {
+    let filtered = postsToSort;
+
+    // Apply tag filtering
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter((post) => selectedTags.includes(post.label));
+    }
+
+    // Apply sorting
+    return filtered.sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortBy) {
+        case 'trending':
+          comparison = getTrendingScore(b) - getTrendingScore(a);
+          break;
+        case 'latest':
+          comparison = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          break;
+        case 'top':
+          comparison = (b.likes?.length || 0) - (a.likes?.length || 0);
+          break;
+        // case 'comments':
+        //   comparison = (b.commentsCount || 0) - (a.commentsCount || 0);
+        //   break;
+      }
+
+      return sortOrder === 'asc' ? -comparison : comparison;
+    });
+  };
+
+  if (externalLoading || filterLoading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#8b7355" />
+      </View>
+    );
+  }
+
   const renderPostCard = ({ item, index }: { item: ForumPost; index: number }) => (
     <TouchableOpacity
       style={[styles.cardContainer, { backgroundColor: determineBackgroundColor(item) }]}
@@ -208,7 +248,7 @@ const ForumPostsList: React.FC<ForumPostsListProps> = ({
             <View className="flex-row items-center">
               <FontAwesome name="clock-o" size={12} color="#666" />
               <Text className="ml-1 text-xs text-gray-500">
-                {calculateReadTime(item.content || '')}
+                {getReadTimeDisplay(item.content || '')}
               </Text>
             </View>
           </View>
@@ -217,28 +257,7 @@ const ForumPostsList: React.FC<ForumPostsListProps> = ({
     </TouchableOpacity>
   );
 
-  // Render section for each label category
-  const renderLabelSection = (label: string) => {
-    const labelPosts = postsByLabel[label] || [];
-
-    if (labelPosts.length === 0) return null;
-
-    return (
-      <View className="mb-4" key={label}>
-        <Text className="mb-2 ml-4 text-lg font-bold">{label}</Text>
-        <FlashList
-          data={labelPosts}
-          renderItem={renderPostCard}
-          estimatedItemSize={250}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.horizontalList}
-        />
-      </View>
-    );
-  };
-
-  if (isLoading) {
+  if (externalLoading) {
     return (
       <View className="flex-1 items-center justify-center">
         <Text>Loading posts...</Text>
@@ -255,30 +274,22 @@ const ForumPostsList: React.FC<ForumPostsListProps> = ({
   }
 
   return (
-    <FlashList
-      data={[...LABEL_CATEGORIES, 'all']}
-      renderItem={({ item }) => {
-        if (item === 'all') {
-          return (
-            <View className="mt-4">
-              <Text className="mb-2 ml-4 text-xl font-bold">All Posts</Text>
-              <FlashList
-                data={posts}
-                renderItem={renderPostCard}
-                estimatedItemSize={250}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.verticalList}
-                numColumns={1}
-              />
-            </View>
-          );
-        }
-        return renderLabelSection(item);
-      }}
-      estimatedItemSize={350}
-      showsVerticalScrollIndicator={false}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-    />
+    <View style={{ flex: 1 }}>
+      <FilterBar />
+      {filterLoading ? (
+        <View className="absolute inset-0 items-center justify-center bg-black/5">
+          <ActivityIndicator size="large" color="#8b7355" />
+        </View>
+      ) : null}
+      <FlashList
+        data={getSortedAndFilteredPosts(posts)}
+        renderItem={renderPostCard}
+        estimatedItemSize={250}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.verticalList}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      />
+    </View>
   );
 };
 
@@ -319,8 +330,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   verticalList: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
+    padding: 16,
   },
 });
 
