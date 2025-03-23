@@ -28,7 +28,7 @@ export async function fetchUserProfile() {
     const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
 
     if (error) {
-      ToastAndroid.show('Error fetching profile: ' + error.message, ToastAndroid.LONG);
+      ToastAndroid.show(`Error fetching profile: ${error.message}`, ToastAndroid.LONG);
       throw error;
     }
 
@@ -55,7 +55,7 @@ export async function updateUserProfile(profileData: ProfileData) {
     const { error } = await supabase.from('profiles').update(profileData).eq('id', user.id);
 
     if (error) {
-      ToastAndroid.show('Error updating profile: ' + error.message, ToastAndroid.LONG);
+      ToastAndroid.show(`Error updating profile: ${error.message}`, ToastAndroid.LONG);
       throw error;
     }
 
@@ -88,7 +88,8 @@ export async function uploadUserAvatar(base64Image: string, fileExt = 'png') {
       search: fileName,
     });
 
-    let result;
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    let result: { data: any; error: any };
 
     // Convert base64 string to ArrayBuffer
     const fileBuffer = decode(base64Image);
@@ -107,7 +108,7 @@ export async function uploadUserAvatar(base64Image: string, fileExt = 'png') {
     }
 
     if (result.error) {
-      ToastAndroid.show('Error uploading avatar: ' + result.error.message, ToastAndroid.LONG);
+      ToastAndroid.show(`Error uploading avatar: ${result.error.message}`, ToastAndroid.LONG);
       throw result.error;
     }
 
