@@ -72,11 +72,10 @@ export default function PostPage() {
   }, [showComments]);
 
   const navigateToUserProfile = () => {
-    console.log('Navigating to profile with ID:', post?.creator_id);
     if (post?.creator_id) {
       router.push(`/account/${post.creator_id}`);
     } else {
-      console.log('Creator ID is missing');
+      ToastAndroid.show('Creator ID is missing', ToastAndroid.SHORT);
     }
   };
 

@@ -38,7 +38,6 @@ export default function ForumPage() {
     }
     try {
       const userProfile = await getProfileById(user.id);
-      console.log('User profile:', userProfile);
       setProfile(userProfile);
     } catch (error) {
       console.error('Error fetching profile:', error);

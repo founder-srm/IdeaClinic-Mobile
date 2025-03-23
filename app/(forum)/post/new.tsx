@@ -82,7 +82,6 @@ export default function PostCreationPage() {
   const handleImageUploaded = (response: any) => {
     if (response?.secure_url) {
       setCloudinaryUrl(response.secure_url);
-      console.log(response.secure_url);
       setCloudinaryResource(response);
       ToastAndroid.show('Image uploaded successfully!', ToastAndroid.SHORT);
     } else {
@@ -146,7 +145,6 @@ export default function PostCreationPage() {
       } else {
         testCreateThread({ threadId: id, title });
         ToastAndroid.show('Post created successfully', ToastAndroid.SHORT);
-        console.log(data);
         router.push('/forum');
       }
     } catch (error) {

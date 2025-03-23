@@ -41,7 +41,6 @@ export default function CloudinaryUploader({
       xhr.onload = () => {
         const res = JSON.parse(xhr.response);
         if (res.error) return reject(res.error);
-        console.log('Cloudinary response:', res);
         resolve({
           secure_url: res.secure_url,
           public_id: res.public_id,
@@ -83,10 +82,8 @@ export default function CloudinaryUploader({
       xhr.onload = () => {
         const res = JSON.parse(xhr.response);
         if (res.error) return reject(res.error);
-        console.log('Cloudinary delete response:', res);
         // Check the success status from the API response
         if (res.status === 'success') {
-          console.log(res.message);
           resolve(true);
         } else {
           resolve(false);

@@ -43,7 +43,6 @@ const fetchUserProfile = async (): Promise<ProfileData | null> => {
 // biome-ignore lint/suspicious/noExplicitAny: it is wat it is
 const getUserId = (params: Record<string, any>, currentId: string | null): string | null => {
   if (params.id && typeof params.id === 'string' && params.id.includes('function')) {
-    console.log('Detected function in params.id, using currentUserId instead');
     return currentId;
   }
 
@@ -92,7 +91,6 @@ export default function AccountPage() {
 
         // Check if this is the current logged-in user
         const isCurrentUserProfile = userId === currentUserId;
-        // console.log('Current user check:', { userId, currentUserId, isCurrentUser: isCurrentUserProfile });
         setIsCurrentUser(isCurrentUserProfile);
         setProfile(profileData);
       } else if (currentUserId) {

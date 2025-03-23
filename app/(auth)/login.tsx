@@ -25,7 +25,6 @@ export default function LoginPage() {
   const { isKeyboardVisible, keyboardHeight } = useKeyboard();
 
   const handleSignIn = async () => {
-    console.log('Sign in Attempt');
     try {
       const result = await login(email, password);
       if (result.success) {
