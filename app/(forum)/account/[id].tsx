@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 
 import { Container } from '~/components/Container';
+import RequestReviewButton from '~/components/RequestReviewButton';
 import { UseSignOut } from '~/hooks/useSignOut';
 import { useUser } from '~/hooks/useUser';
 import { useStore } from '~/store/store';
@@ -378,6 +379,18 @@ export default function AccountPage() {
               <Ionicons name="arrow-back" size={18} color={COLORS.dark.primary} className="mr-2" />
               <Text style={{ color: COLORS.dark.primary }}>Back to post</Text>
             </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Rate app section - only for current user */}
+        {isCurrentUser && (
+          <View
+            className="mx-4 mb-4 items-center rounded-lg py-3"
+            style={{ backgroundColor: COLORS.dark.root }}>
+            <Text className="mb-2 text-xs font-medium" style={{ color: COLORS.dark.grey }}>
+              Enjoying the app? Leave a review!
+            </Text>
+            <RequestReviewButton />
           </View>
         )}
 
