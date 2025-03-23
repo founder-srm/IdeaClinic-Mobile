@@ -170,9 +170,6 @@ export default function ForumPage() {
       <ScrollView
         className="flex gap-4 p-4"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-        <Button size="sm" onPress={() => router.push('/details')}>
-          <Text className="text-center">Component lib</Text>
-        </Button>
         <ForumPostsList
           posts={posts}
           isLoading={isLoading}

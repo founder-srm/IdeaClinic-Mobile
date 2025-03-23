@@ -5,13 +5,12 @@ import 'tailwindcss/utilities';
 import 'expo-dev-client';
 
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { PortalHost } from '@rn-primitives/portal';
 import { useFonts } from 'expo-font';
 import * as NavigationBar from 'expo-navigation-bar';
-import { Link, Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
@@ -121,18 +120,6 @@ export default function Layout() {
                 <Stack.Screen name="(auth)" options={{ headerShown: false }} />
                 <Stack.Screen name="(settings)" options={{ headerShown: false }} />
                 <Stack.Screen name="(forum)" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="details"
-                  options={{
-                    presentation: 'modal',
-                    headerLeft: () => (
-                      <Link href="/forum" className="my-auto px-4">
-                        <FontAwesome name="arrow-left" size={12} />
-                      </Link>
-                    ),
-                    // headerRight: () => <ThemeToggle />,
-                  }}
-                />
               </Stack>
             </ActionSheetProvider>
           </NavThemeProvider>
