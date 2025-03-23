@@ -19,6 +19,7 @@ import { patterns } from './PostPatterns';
 import { ActivityIndicator } from './nativewindui/ActivityIndicator';
 import { Text } from './nativewindui/Text';
 
+import { useUser } from '~/hooks/useUser';
 import type { ForumPost } from '~/lib/types';
 import { useFilterStore } from '~/store/filterStore';
 import { supabase } from '~/utils/supabase';
@@ -68,6 +69,8 @@ const ForumPostsList: React.FC<ForumPostsListProps> = ({
     calculateReadTime,
   } = useFilterStore();
 
+  const { id, isAuthenticated } = useUser();
+
   const getReadTimeDisplay = (content: string): string => {
     const minutes = calculateReadTime(content);
     return minutes === 0 ? '< 1 min read' : `${minutes} min read`;
@@ -111,7 +114,7 @@ const ForumPostsList: React.FC<ForumPostsListProps> = ({
 
   // Add like toggle function
   const toggleLike = async (postId: string) => {
-    if (!userId) {
+    if (!id || !isAuthenticated) {
       ToastAndroid.show('Please login to like posts', ToastAndroid.SHORT);
       return;
     }
@@ -119,7 +122,7 @@ const ForumPostsList: React.FC<ForumPostsListProps> = ({
     const post = posts.find((p) => p.id === postId);
     if (!post) return;
 
-    const isLiked = post.likes?.includes(userId);
+    const isLiked = post.likes?.includes(id);
 
     try {
       const { data: currentPost } = await supabase
@@ -132,12 +135,12 @@ const ForumPostsList: React.FC<ForumPostsListProps> = ({
       let newLikes: string[];
 
       if (isLiked) {
-        newLikes = currentLikes.filter((id) => id !== userId);
+        newLikes = currentLikes.filter((thisId) => thisId !== id);
       } else {
-        newLikes = [...currentLikes, userId];
+        newLikes = [...currentLikes, id];
       }
 
-      newLikes = newLikes.filter((id): id is string => id !== undefined);
+      newLikes = newLikes.filter((thisId): thisId is string => thisId !== undefined);
 
       const { error } = await supabase.from('posts').update({ likes: newLikes }).eq('id', postId);
 
