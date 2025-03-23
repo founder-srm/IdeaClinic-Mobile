@@ -18,11 +18,11 @@ export const FilterBar = () => {
 
   return (
     <>
-      <View className="border-accent/10 flex-row items-center justify-between border-b bg-card px-4 py-2">
+      <View className="border-accent/10 flex-row items-center justify-between border-b bg-transparent px-4 py-2">
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <Pressable
             onPress={openFilterSheet}
-            className="mr-2 flex-row items-center space-x-2 rounded-full bg-[#dfcfbd]/30 px-3 py-1.5">
+            className="mr-2 flex-row items-center space-x-2 rounded-full border border-accent bg-[#dfcfbd]/30 px-3 py-1.5">
             <AntDesign name="filter" size={16} color="#8b7355" />
             <Text className="text-sm font-medium text-[#5c4d3d]">
               {sortBy.charAt(0).toUpperCase() + sortBy.slice(1)}
@@ -59,7 +59,6 @@ const FilterSheet = () => {
     { label: 'Trending', value: 'trending' },
     { label: 'Latest', value: 'latest' },
     { label: 'Most Liked', value: 'top' },
-    { label: 'Most Comments', value: 'comments' },
   ];
 
   return (
@@ -121,7 +120,7 @@ const FilterSheet = () => {
                     setSelectedTags([...selectedTags, tag]);
                   }
                 }}
-                className={`rounded-full border border-[#dfcfbd]/20 px-3 py-1.5 ${
+                className={`rounded-full border border-accent px-3 py-1.5 ${
                   selectedTags.includes(tag) ? 'bg-[#dfcfbd]/30' : 'bg-card'
                 }`}>
                 <Text className="text-[#5c4d3d]">{tag}</Text>

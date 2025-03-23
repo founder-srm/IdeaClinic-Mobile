@@ -6,6 +6,7 @@ import { getProfileById } from '~/actions/forum/profile';
 import { Container } from '~/components/Container';
 import { EnhancedAvatarHeader } from '~/components/EnhancedAvatarHeader';
 import ForumPostsList from '~/components/ForumPostsList';
+import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import type { Database } from '~/database.types';
@@ -141,7 +142,7 @@ export default function ForumPage() {
     return (
       <Container>
         <View className="flex-1 items-center justify-center">
-          <Text className="text-lg">Loading profile...</Text>
+          <ActivityIndicator size="large" color="#8b7355" />
         </View>
       </Container>
     );

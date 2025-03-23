@@ -12,11 +12,11 @@ import {
   ToastAndroid,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from 'react-native';
 
 import { FilterBar } from './FilterBar';
 import { patterns } from './PostPatterns';
+import { ActivityIndicator } from './nativewindui/ActivityIndicator';
 import { Text } from './nativewindui/Text';
 
 import type { ForumPost } from '~/lib/types';

@@ -171,13 +171,7 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
 
   const headerHeight = panY.interpolate({
     inputRange: [-200, 0, 200],
-    outputRange: [300, 220, 120], // Max, normal, min heights
-    extrapolate: 'clamp',
-  });
-
-  const imageOpacity = panY.interpolate({
-    inputRange: [0, 100],
-    outputRange: [1, 0],
+    outputRange: [300, 120, 120], // Max, normal, min heights
     extrapolate: 'clamp',
   });
 
@@ -204,13 +198,6 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
         {...panResponder.panHandlers}
         className="pb-0 pt-10">
         <View className="flex-row items-center justify-between px-4 py-2">
-          {/* <TouchableOpacity onPress={onLogout} className="z-20 p-2">
-            <Image
-              source={require('../assets/icons/logout.png')}
-              className="h-6 w-6"
-              style={{ tintColor: 'white' }}
-            />
-          </TouchableOpacity> */}
           <NovuProvider
             // biome-ignore lint/style/noNonNullAssertion: its always gonna be there in this page
             subscriberId={onSettings!} // onSettings is user id
@@ -240,11 +227,16 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
                 onPress={showSearchAnimation}
                 className="p-2"
                 disabled={showSearchBar}>
-                <Image
-                  source={require('../assets/icons/search.png')}
-                  className="h-6 w-6"
-                  style={{ tintColor: 'white' }}
-                />
+                <Avatar alt="IdeaSpark Avatar" className="">
+                  <AvatarImage
+                    source={{
+                      uri: image,
+                    }}
+                  />
+                  <AvatarFallback>
+                    <Text className="text-foreground">{title}</Text>
+                  </AvatarFallback>
+                </Avatar>
               </TouchableOpacity>
             </Animated.View>
           </View>
@@ -256,28 +248,6 @@ export const EnhancedAvatarHeader: React.FC<EnhancedAvatarHeaderProps> = ({
               style={{ tintColor: 'white' }}
             />
           </TouchableOpacity>
-        </View>
-
-        <Animated.View
-          className="flex w-full flex-col items-center justify-center p-4"
-          style={{ opacity: imageOpacity }}>
-          <View className="flex w-full flex-col items-center justify-center gap-4">
-            <Avatar alt="IdeaSpark Avatar" className="">
-              <AvatarImage
-                source={{
-                  uri: image,
-                }}
-              />
-              <AvatarFallback>
-                <Text className="text-foreground">{title}</Text>
-              </AvatarFallback>
-            </Avatar>
-            <Text className="ml-4 text-xl font-bold text-[rgb(236,227,202)]">Hello {title}!</Text>
-          </View>
-        </Animated.View>
-
-        <View className="absolute bottom-0 left-0 right-0 flex-row items-center justify-center">
-          <View className="h-1 w-10 rounded-full bg-white bg-opacity-50" />
         </View>
       </Animated.View>
 
