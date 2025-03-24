@@ -2,7 +2,7 @@
   "expo": {
     "name": "ideaclinic-mobile",
     "slug": "ideaclinic-mobile",
-    "version": "1.1.0",
+    "version": "1.1.2",
     "scheme": "com.ideaclinic-mobile",
     "web": {
       "bundler": "metro",
