@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as React from 'react';
-import { Image, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 import { Container } from '~/components/Container';
 import { COLORS } from '~/theme/colors';
@@ -43,9 +43,25 @@ export default function AboutPage() {
     },
   ];
 
+  const renderTeamMember = ({ item }: { item: { name: string; role: string; image: string } }) => (
+    <View className="items-center mb-4" style={{ width: '30%' }}>
+      <Image
+        source={{ uri: item.image }}
+        className="h-12 w-12 rounded-full"
+        style={{ borderWidth: 2, borderColor: COLORS.dark.primary }}
+      />
+      <Text className="mt-2 text-sm font-bold" style={{ color: COLORS.dark.neutral }}>
+        {item.name}
+      </Text>
+      <Text className="text-xs" style={{ color: COLORS.dark.grey }}>
+        {item.role}
+      </Text>
+    </View>
+  );
+
   return (
     <Container>
-      <ScrollView className="mt-12 flex-1" style={{ backgroundColor: COLORS.dark.background }}>
+      <ScrollView className="mt-[6rem] flex-1" style={{ backgroundColor: COLORS.dark.background }}>
         {/* App Info */}
         <View
           className="mx-4 my-4 items-center rounded-lg px-6 py-8 shadow-sm"
@@ -131,24 +147,14 @@ export default function AboutPage() {
             Meet the Team
           </Text>
 
-          <View className="flex-row flex-wrap justify-between">
-            {teamMembers.map((member, index) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-              <View key={index} className="items-center">
-                <Image
-                  source={{ uri: member.image }}
-                  className="h-12 w-12 rounded-full"
-                  style={{ borderWidth: 2, borderColor: COLORS.dark.primary }}
-                />
-                <Text className="mt-2 text-sm font-bold" style={{ color: COLORS.dark.neutral }}>
-                  {member.name}
-                </Text>
-                <Text className="text-xs" style={{ color: COLORS.dark.grey }}>
-                  {member.role}
-                </Text>
-              </View>
-            ))}
-          </View>
+          <FlatList
+            data={teamMembers}
+            numColumns={3}
+            columnWrapperStyle={{ justifyContent: 'space-between' }}
+            renderItem={renderTeamMember}
+            keyExtractor={(_, index) => index.toString()}
+            scrollEnabled={false}
+          />
         </View>
       </ScrollView>
     </Container>

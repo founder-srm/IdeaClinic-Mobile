@@ -29,7 +29,7 @@ export default function SupportPage() {
 
   return (
     <Container>
-      <ScrollView className="mt-12 flex-1" style={{ backgroundColor: COLORS.dark.background }}>
+      <ScrollView className="mt-[6rem] flex-1" style={{ backgroundColor: COLORS.dark.background }}>
         {/* Support Banner */}
         <View
           className="mx-4 my-4 items-center rounded-lg p-6 shadow-sm"
