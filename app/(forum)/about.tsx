@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Application from 'expo-application';
 import * as React from 'react';
 import { FlatList, Image, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
@@ -13,38 +14,36 @@ export default function AboutPage() {
   const teamMembers = [
     {
       name: 'Suvan Gs',
-      role: 'Lead Developer',
-      image: 'https://via.placeholder.com/60',
+      role: 'Project Lead',
+      image:
+        'https://cdn.sanity.io/images/xzfuyp1r/production/0762f061fb9e4b2f017314a2f1f34b5c882e9f05-187x187.png',
     },
     {
       name: 'Vijay Makkad',
-      role: 'Developer',
-      image: 'https://via.placeholder.com/60',
+      role: 'React Native Developer',
+      image:
+        'https://cdn.sanity.io/images/xzfuyp1r/production/0c588c3f639d1e84c79deeab3c114bc5f5b3e692-1600x1200.png?rect=353,310,923,880',
     },
     {
       name: 'Suman S',
-      role: 'Frontend Developer',
-      image: 'https://via.placeholder.com/60',
+      role: 'React Native Developer',
+      image: 'https://avatars.githubusercontent.com/u/113275985?v=4',
     },
     {
       name: 'Mohammad Ariffin',
-      role: 'Backend Developer',
-      image: 'https://via.placeholder.com/60',
+      role: 'Notifications & Backend Developer',
+      image:
+        'https://cdn.sanity.io/images/xzfuyp1r/production/3620de2e5943a2faffb526ea9a7f588ca357e095-1204x1600.jpg?rect=435,262,375,372',
     },
     {
       name: 'Vinayak Chandra',
       role: 'Frontend Developer',
-      image: 'https://via.placeholder.com/60',
-    },
-    {
-      name: 'Suman S',
-      role: 'Frontend Developer',
-      image: 'https://via.placeholder.com/60',
+      image: 'https://avatars.githubusercontent.com/u/78032279?v=4',
     },
   ];
 
   const renderTeamMember = ({ item }: { item: { name: string; role: string; image: string } }) => (
-    <View className="items-center mb-4" style={{ width: '30%' }}>
+    <View className="mb-4 items-center" style={{ width: '30%' }}>
       <Image
         source={{ uri: item.image }}
         className="h-12 w-12 rounded-full"
@@ -73,7 +72,7 @@ export default function AboutPage() {
           </Text>
 
           <Text className="mt-2 text-center" style={{ color: COLORS.dark.grey }}>
-            Version 1.0.0
+            Version {Application.nativeApplicationVersion}{' '}
           </Text>
 
           <View className="my-6 h-1 w-16" style={{ backgroundColor: COLORS.dark.card }} />
@@ -125,7 +124,7 @@ export default function AboutPage() {
               color={COLORS.dark.primary}
               className="mr-3"
             />
-            <Text style={{ color: COLORS.dark.neutral }}>Cloud storage integration</Text>
+            <Text style={{ color: COLORS.dark.neutral }}>Cloud storage Buckets</Text>
           </View>
 
           <View className="flex-row items-center">
